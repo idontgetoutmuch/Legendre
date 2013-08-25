@@ -20,3 +20,18 @@ where $\delta$ is the Dirac delta function. Thus the density of our ring is
 $$
 \rho(r, \theta) = \frac{\delta(\theta - \pi / 2) \delta(r - a)}{2\pi a^2}
 $$
+
+> module Main (main) where
+>
+> import Initial
+>
+> phi i =   sunPotential
+>         + innerPotential
+>         + outerPotential
+>   where
+>     sunPotential = negate $ gConst * (massesOuter!!5) / (radius $ initQsOuter!!i)
+>     innerPotential = undefined
+>     outerPotential = undefined
+>     radius [x, y, z] = sqrt $ x^2 + y^2 + z^2
+>
+> main = putStrLn "Hello"
