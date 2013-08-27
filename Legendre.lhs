@@ -25,11 +25,14 @@ P_{2n+1}(0) &= 0
 $$
 
 Since we are dealing with infinite series we will want to define this
-co-recursively. We could use the [Stream
+[co-recursively](http://en.wikipedia.org/wiki/Corecursion "Wikipedia
+definition"). We could use the [Stream
 package](http://hackage.haskell.org/package/Stream "Hackage") but let
 us stay with lists.
 
-> module Main (main) where
+> module Legendre (
+>     legendre0s
+>   , main) where
 >
 > import Data.List
 >
@@ -47,6 +50,9 @@ us stay with lists.
 >   where
 >     g ([],  _) = Nothing
 >     g (x:xs, ys) = Just (x, (ys, xs))
+
+    [ghci]
+    take 10 $ legendre0s
 
 This article calculates the precession in Haskell using Newtonian
 methods.  Over a long enough period, the gravitational effect of each
@@ -80,11 +86,6 @@ Axially Symmetric Mass Distributions
 
 We consider axially
 symmetric mass distributions
-
-
-$$
-P_{2n}(0) = \frac{(-1)^n(2n)!}{2^{2n}(n!)^2}
-$$
 
 > phi i =   sunPotential
 >         + innerPotential
