@@ -63,13 +63,13 @@ can model Saturn's rings using this technique but that is certainly
 the subject of a different blog post.
 
 More specifically, we model the mass of the ring as being
-totally concentrated on one particular value of $\theta = \pi / 2$ and
+totally concentrated on one particular value of $\phi = \pi / 2$ and
 one particular value of $r = a$ with total mass $M$.
 
 $$
 \begin{aligned}
-M &= \int_0^{2\pi} \int_0^\pi \int_0^\infty K\, \delta(\theta - \pi / 2)\, \delta(r - a)\, r^2\sin\theta\, \mathrm{d} r\, \mathrm{d} \theta\, \mathrm{d} \phi \\
-  &= 2\pi \int_0^\pi \int_0^\infty K\, \delta(\theta - \pi / 2)\, \delta(r - a)\, r^2\sin\theta\, \mathrm{d} \theta\, \mathrm{d} r \\
+M &= \int_0^{2\pi} \int_0^\pi \int_0^\infty K\, \delta(\phi - \pi / 2)\, \delta(r - a)\, r^2\sin\phi\, \mathrm{d} r\, \mathrm{d} \phi\, \mathrm{d} \theta \\
+  &= 2\pi \int_0^\pi \int_0^\infty K\, \delta(\phi - \pi / 2)\, \delta(r - a)\, r^2\sin\phi\, \mathrm{d} \phi\, \mathrm{d} r \\
   &= 2\pi \int_0^\infty K\, \delta(r - a)\, r^2\, \mathrm{d} r \\
   &= 2\pi K a^2
 \end{aligned}
@@ -78,16 +78,46 @@ $$
 where $\delta$ is the Dirac delta function. Thus the density of our ring is
 
 $$
-\rho(r, \theta) = \frac{\delta(\theta - \pi / 2) \delta(r - a)}{2\pi a^2}
+\rho(r, \phi) = M \frac{\delta(\phi - \pi / 2) \delta(r - a)}{2\pi a^2}
 $$
+
+Acknowledgement
+---------------
+
+This blog follows the exposition given in [@Fitz:Newtonian:Dynamics]
+concretized for the precession of the perihelion of Mercury with some
+of the elisions expanded. More details on Legendre Polynomials can be
+found in [@Bowles:Legendre:Polynomials].
 
 Axially Symmetric Mass Distributions
 ------------------------------------
 
-We consider axially
-symmetric mass distributions
+We consider axially symmetric mass distributions in spherical polar
+co-ordinates $(r, \phi, \theta)$ where $r$ runs from $0$ to $\infty$,
+$\phi$ (the polar angle) runs from $0$ to $\pi$ and $\theta$ (the
+azimuthal angle) runs from $0$ to $2\pi$.
 
-> phi i =   sunPotential
+For clarity we give their conversion to cartesian co-ordinates.
+
+$$
+\begin{align}
+x &= r\sin\phi\cos\theta \\
+y &= r\sin\phi\sin\theta \\
+z &= r\cos\phi
+\end{align}
+$$
+
+The volume element in spherical polar co-ordinates is given by
+$r^2\sin\phi\,\mathrm{d} r\,\mathrm{d} \phi\,\mathrm{d} \theta$.
+
+The gravitational potential given by $N$ masses each of mass $m_i$ and
+at position $\boldsymbol{r}_i$ is:
+
+$$
+\Phi(\boldsymbol{r}) = -G\sum_{i=1}^N\frac{m_i}{\|\boldsymbol{r}_i - \boldsymbol{r}\|}
+$$
+
+> theta i =   sunPotential
 >         + innerPotential
 >         + outerPotential
 >   where
