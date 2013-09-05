@@ -117,6 +117,26 @@ $$
 \Phi(\boldsymbol{r}) = -G\sum_{i=1}^N\frac{m_i}{\|\boldsymbol{r}_i - \boldsymbol{r}\|}
 $$
 
+If instead of point masses, we have a mass distribution $\rho(\boldsymbol{r})$ then
+
+$$
+\Phi(\boldsymbol{r}) = -G\int_{\mathbb{R}^3}\frac{\rho(\boldsymbol{r}')}{\|\boldsymbol{r}' - \boldsymbol{r}\|}\, \mathrm{d} V
+$$
+
+where $\mathrm{d} V$ is the volume element.
+
+If the mass distribution is axially symmetric then so will the
+potential. In spherical polar co-ordinates:
+
+$$
+\begin{align}
+\Phi(r, \phi) &= -G\int_0^{2\pi} \int_0^\pi \int_0^\infty \frac{\rho(r', \phi')}{\|\boldsymbol{r}' - \boldsymbol{r}\|}\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'\, \mathrm{d} \theta' \\
+              &= -2\pi G\int_0^\pi \int_0^\infty \rho(r', \phi') \langle\|\boldsymbol{r}' - \boldsymbol{r}\|^{-1}\rangle\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi' \\
+\end{align}
+$$
+
+where $\langle\ldots\rangle$ denotes the average over the azimuthal angle.
+
 > theta i =   sunPotential
 >         + innerPotential
 >         + outerPotential
