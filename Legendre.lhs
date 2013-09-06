@@ -137,6 +137,46 @@ $$
 
 where $\langle\ldots\rangle$ denotes the average over the azimuthal angle.
 
+$$
+\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1} = (r^2 - 2\boldsymbol{r}\cdot\boldsymbol{r}' + r'^2)^{-1/2}
+$$
+
+Expanding the middle term on the right hand size and noting that $\theta = 0$:
+
+$$
+\begin{align}
+\boldsymbol{r}\cdot\boldsymbol{r}' &= r\sin\phi\cos\theta r'\sin\phi'\cos\theta' +
+                                      r\sin\phi\sin\theta r'\sin\phi'\sin\theta' +
+                                      r\cos\phi r'\cos\phi' \\
+                                   &= r\sin\phi r'\sin\phi'\cos\theta' +
+                                      r\cos\phi r'\cos\phi' \\
+                                   &= rr'(\sin\phi\sin\phi'\cos\theta' + \cos\phi\cos\phi')
+\end{align}
+$$
+
+Writing $F = \sin\phi\sin\phi'\cos\theta' + \cos\phi\cos\phi'$ and noting that
+
+$$
+\frac{1}{\sqrt{1 - 2xt + t^2}} = \sum_{n=0}^\infty t^n P_n(x)
+$$
+
+where $P_n$ are the [Legendre
+Polynomials](http://en.wikipedia.org/wiki/Legendre_polynomials
+"Wikipedia definition") we see that
+
+$$
+\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1} = \frac{1}{r}\sum{\bigg(\frac{r'}{r}}\bigg)^n P_n(F)
+$$
+
+Applying the [Spherical Harmonic Addition
+Theorem](http://mathworld.wolfram.com/SphericalHarmonicAdditionTheorem.html
+"Wolfram MathWorld definition") (or see [@arfken]) we
+obtain
+
+$$
+\langle\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1}\rangle = \frac{1}{r}\sum{\bigg(\frac{r'}{r}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')
+$$
+
 > theta i =   sunPotential
 >         + innerPotential
 >         + outerPotential
