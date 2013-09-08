@@ -162,10 +162,10 @@ $$
 
 where $P_n$ are the [Legendre
 Polynomials](http://en.wikipedia.org/wiki/Legendre_polynomials
-"Wikipedia definition") we see that
+"Wikipedia definition") we see that when $r' < r$
 
 $$
-\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1} = \frac{1}{r}\sum{\bigg(\frac{r'}{r}}\bigg)^n P_n(F)
+\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1} = \frac{1}{r}\sum_{n=0}^\infty{\bigg(\frac{r'}{r}}\bigg)^n P_n(F)
 $$
 
 Applying the [Spherical Harmonic Addition
@@ -174,7 +174,99 @@ Theorem](http://mathworld.wolfram.com/SphericalHarmonicAdditionTheorem.html
 obtain
 
 $$
-\langle\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1}\rangle = \frac{1}{r}\sum{\bigg(\frac{r'}{r}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')
+\langle\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1}\rangle = \frac{1}{r}\sum_{n=0}^\infty{\bigg(\frac{r'}{r}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')
+$$
+
+Similarly when $r < r'$ we obtain
+
+$$
+\langle\|\boldsymbol{r} - \boldsymbol{r}'\|^{-1}\rangle = \frac{1}{r'}\sum_{n=0}^\infty{\bigg(\frac{r}{r'}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')
+$$
+
+Substituting into the equation for the potential for axially symmetric
+mass distributions gives us
+
+$$
+\begin{align}
+\Phi(r, \phi) &= -2\pi G\int_0^\pi \int_0^\infty \rho(r', \phi') \langle\|\boldsymbol{r}' - \boldsymbol{r}\|^{-1}\rangle\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi' \\
+             &=  -2\pi G\int_0^\pi \int_0^r \rho(r', \phi')\frac{1}{r}\sum_{n=0}^\infty{\bigg(\frac{r'}{r}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'
+\\
+             &\phantom{=}  -2\pi G\int_0^\pi \int_r^\infty \rho(r', \phi')\frac{1}{r'}\sum_{n=0}^\infty{\bigg(\frac{r}{r'}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'
+\\
+             &= \sum_{n=0}^\infty \Phi_n(r) P_n(\cos\theta)
+\end{align}
+$$
+
+where
+
+$$
+\begin{align}
+\Phi_n(r) &= -\frac{2\pi G}{r^{n+1}}\int_0^r\int_0^\pi r'^{n+2}\rho(r', \phi')P_n(\cos\phi')\sin\phi'\,\mathrm{d}r'\,\mathrm{d}\phi' \\
+          &\phantom{=} -2\pi G r^n\int_r^\infty\int_0^\pi r'^{1-n}\rho(r', \phi')P_n(\cos\phi')\sin\phi'\,\mathrm{d}r'\,\mathrm{d}\phi'
+\end{align}
+$$
+
+Note that the first integral has limits $0$ to $r$ and the second has limits $r$ to $\infty$.
+
+It is well known that the Legendre Polynomials form an orthogonal and
+complete set for continuous functions. Indeed
+
+$$
+\int_{-1}^1 P_n(x)P_m(x)\,\mathrm{d}x = \frac{2\delta_{nm}}{2n + 1}
+$$
+
+Thus we can write
+
+$$
+\rho(r, \phi) = \sum_{n=o}^\infty \rho_n(r)P_n(\cos\phi)
+$$
+
+Using the orthogonality condition we have
+
+$$
+\rho_n(r) = (n + 1/2)\int_0^\pi \rho(r, \phi) P_n(\cos\phi) \sin\phi\,\mathrm{d}\phi
+$$
+
+Hence
+
+$$
+\begin{align}
+\Phi_n(r) &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2}\rho_n(r')\,\mathrm{d}r' \\
+          &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n}\rho_(r')\,\mathrm{d}r'\,\mathrm{d}r'
+\end{align}
+$$
+
+Gravitational Potential of a Ring
+---------------------------------
+
+We now substitute in the axially symmetric density of a ring
+
+$$
+\begin{align}
+\rho_n(r) &= (n + 1/2)\int_0^\pi \rho(r, \phi) P_n(\cos\phi) \sin\phi\,\mathrm{d}\phi \\
+          &=(n + 1/2)\int_0^\pi M \frac{\delta(\phi - \pi / 2) \delta(r - a)}{2\pi a^2} P_n(\cos\phi) \sin\phi\,\mathrm{d}\phi \\
+          &= (n + 1/2) M \frac{\delta(r - a)}{2\pi a^2} P_n(0)
+\end{align}
+$$
+
+Substituting again
+
+$$
+\begin{align}
+\Phi_n(r) &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2}\rho_n(r')\,\mathrm{d}r' \\
+          &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n}\rho_(r')\,\mathrm{d}r'\,\mathrm{d}r' \\
+          &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r' \\
+          &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r'\,\mathrm{d}r'
+\end{align}
+$$
+
+Thus for $a < r$
+
+$$
+\begin{align}
+\Phi_n(r) &= -\frac{2\pi G}{r^{n+1}} a^{n+2} M \frac{1}{2\pi a^2} P_n(0) \\
+          &= -\frac{2\pi GMP_n(0)}{a}\bigg(\frac{a}{r}\bigg)^{n+1}
+\end{align}
 $$
 
 > theta i =   sunPotential
