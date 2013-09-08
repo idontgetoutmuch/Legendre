@@ -10,7 +10,8 @@ about 0.31 AU and an aphelion of about 0.47 AU. This ellipse is not
 stationary but itself rotates about the Sun, a phenomenon known as the
 precession of the perihelion. A calculation carried out using
 Newtonian mechanics gives a value at variance with observation. The
-deficit is explained using General Relativity.
+deficit is explained using General Relativity although we do not apply
+the relativistic correction in this post.
 
 Just to give a flavour of the Haskell, we will have to calculate
 values of the infinite series of [Legendre
@@ -193,7 +194,7 @@ $$
 \\
              &\phantom{=}  -2\pi G\int_0^\pi \int_r^\infty \rho(r', \phi')\frac{1}{r'}\sum_{n=0}^\infty{\bigg(\frac{r}{r'}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'
 \\
-             &= \sum_{n=0}^\infty \Phi_n(r) P_n(\cos\theta)
+             &= \sum_{n=0}^\infty \Phi_n(r) P_n(\cos\phi)
 \end{align}
 $$
 
@@ -256,17 +257,54 @@ $$
 \Phi_n(r) &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2}\rho_n(r')\,\mathrm{d}r' \\
           &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n}\rho_(r')\,\mathrm{d}r'\,\mathrm{d}r' \\
           &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r' \\
-          &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r'\,\mathrm{d}r'
+          &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r'
 \end{align}
 $$
+
 
 Thus for $a < r$
 
 $$
 \begin{align}
 \Phi_n(r) &= -\frac{2\pi G}{r^{n+1}} a^{n+2} M \frac{1}{2\pi a^2} P_n(0) \\
-          &= -\frac{2\pi GMP_n(0)}{a}\bigg(\frac{a}{r}\bigg)^{n+1}
+          &= -\frac{G M P_n(0)}{a}\bigg(\frac{a}{r}\bigg)^{n+1}
 \end{align}
+$$
+
+
+And for $r < a$
+
+$$
+\begin{align}
+\Phi_n(r) &= -2\pi G r^n a^{1-n} M \frac{1}{2\pi a^2} P_n(0) \\
+          &= -\frac{G M P_n(0)}{a} \bigg(\frac{r}{a}\bigg)^n
+\end{align}
+$$
+
+Thus at $\phi = \pi / 2$ and $r < a$ we have
+
+$$
+\Phi(r) \equiv \Phi(r, \pi / 2) = -\frac{G M}{a} \sum_{n=0}^\infty P_n^2(0) \bigg(\frac{r}{a}\bigg)^n
+$$
+
+and for $r > a$
+
+$$
+\Phi(r) = -\frac{G M}{a} \sum_{n=0}^\infty P_n^2(0) \bigg(\frac{a}{r}\bigg)^{n+1}
+$$
+
+Let $M$ be the mass of the Sun then the potential due to all the Sun
+and all planets at a distance $r$ (excluding the planet positioned at
+$r$) is
+
+$$
+\Phi(r) = -\frac{GM}{r} - \sum_{n=0}^\infty P_n^2(0) \Bigg[\sum_{a_i < r}\frac{G m_i}{a_i}\bigg(\frac{a_i}{r}\bigg)^{n+1} + \sum_{a_i > r}\frac{G m_i}{a_i}\bigg(\frac{r}{a_i}\bigg)^n\Bigg]
+$$
+
+The radial force is given by $F(r) = -\mathrm{d}\Phi(r) / \mathrm{d} r$
+
+$$
+F(r) = \pi
 $$
 
 > theta i =   sunPotential
