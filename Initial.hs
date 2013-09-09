@@ -10,12 +10,20 @@ module Initial (
     gConst
   , massesOuter
   , initQsOuter
+  , sunMass
+  , earthMass
+  , jupiterMass
   ) where
 
 import Data.List.Split
 
 gConst :: Double
 gConst = 6.67384e-11
+
+sunMass, jupiterMass, earthMass :: Double
+sunMass     = 1.9889e30
+jupiterMass = 1.8986e27
+earthMass   = 5.9722e24
 
 massesOuter :: [Double]
 massesOuter =

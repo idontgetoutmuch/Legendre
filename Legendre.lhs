@@ -304,8 +304,130 @@ $$
 The radial force is given by $F(r) = -\mathrm{d}\Phi(r) / \mathrm{d} r$
 
 $$
-F(r) = \pi
+F(r) = -\frac{GM}{r^2}
+       - \sum_{n=0}^\infty P_n^2(0) \Bigg[
+         \sum_{a_i < r}\frac{G m_i}{a_i^2}(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
+       - \sum_{a_i > r}\frac{G m_i}{a_i^2}n\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
 $$
+
+We also have
+
+$$
+r\frac{\mathrm{d} F}{\mathrm{d} r} =
+  2\frac{GM}{r^2}
+  + \sum_{n=0}^\infty P_n^2(0) \Bigg[
+    \sum_{a_i < r}\frac{G m_i}{a_i^2}(n+1)(n+2)\bigg(\frac{a_i}{r}\bigg)^{n+2}
+  + \sum_{a_i > r}\frac{G m_i}{a_i^2}n(n-1)\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
+$$
+
+Thus
+
+$$
+2F(r) + r\frac{\mathrm{d} F}{\mathrm{d} r} =
+    \sum_{n=0}^\infty P_n^2(0) \Bigg[
+    \sum_{a_i < r}\frac{G m_i}{a_i^2}n(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
+  + \sum_{a_i > r}\frac{G m_i}{a_i^2}n(n+1)\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
+$$
+
+Re-arranging
+
+$$
+\bigg(3 + \frac{r \mathrm{d} F / \mathrm{d} r}{F}\bigg)^{-1/2} =
+\bigg(1 + 2 + \frac{r \mathrm{d} F / \mathrm{d} r}{F}\bigg)^{-1/2}
+$$
+
+we note that the last two terms can be re-written with a numerator of
+
+$$
+\sum_{n=0}^\infty P_n^2(0) \Bigg[
+\sum_{a_i < r}\frac{G m_i}{a_i^2}n(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
++ \sum_{a_i > r}\frac{G m_i}{a_i^2}n(n+1)\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
+$$
+
+and a denominator which is dominated by the $-GM / r^2$. Thus
+
+$$
+\begin{align}
+2 + \frac{r \mathrm{d} F / \mathrm{d} r}{F} &\approx
+-\sum_{n=0}^\infty P_n^2(0) \Bigg[
+\sum_{a_i < r}\frac{m_i r^2}{M a_i^2}n(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
++ \sum_{a_i > r}\frac{m_i r^2}{M a_i^2}n(n+1)\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg] \\
+&=
+-\sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
+  \sum_{a_i < r}\frac{m_i}{M}\bigg(\frac{a_i}{r}\bigg)^n
++ \sum_{a_i > r}\frac{m_i}{M}\bigg(\frac{r}{a_i}\bigg)^{n+1}\Bigg]
+\end{align}
+$$
+
+Since this term is $\ll 1$ we can expand the term of interest further
+
+$$
+\begin{align}
+\bigg(1 + 2 + \frac{r \mathrm{d} F / \mathrm{d} r}{F}\bigg)^{-1/2} &\approx
+\Bigg(1
+-\sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
+  \sum_{a_i < r}\frac{m_i}{M}\bigg(\frac{a_i}{r}\bigg)^n
++ \sum_{a_i > r}\frac{m_i}{M}\bigg(\frac{r}{a_i}\bigg)^{n+1}\Bigg]
+\Bigg)^{-1/2} \\
+&=
+1 + \frac{1}{2}
+  \sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
+  \sum_{a_i < r}\frac{m_i}{M}\bigg(\frac{a_i}{r}\bigg)^n
++ \sum_{a_i > r}\frac{m_i}{M}\bigg(\frac{r}{a_i}\bigg)^{n+1}\Bigg]
+\end{align}
+$$
+
+> earthPerihelion :: Double
+> earthPerihelion = 1.470983e11
+>
+> earthAphelion   :: Double
+> earthAphelion   = 1.520982e11
+>
+> earthMajRad :: Double
+> earthMajRad = (earthPerihelion + earthAphelion) / 2
+>
+> venusMass = 4.8676e24
+> venusMajRad = 108208000e3
+>
+> mercuryMajRad = 57909100e3
+>
+> marsAphelion = 249209300e3
+> marsPerihelion = 206669000e3
+> marsMajRad = (marsAphelion + marsPerihelion) / 2
+> marsMass = 6.4185e23
+>
+> jupiterPerihelion :: Double
+> jupiterPerihelion = 7.405736e11
+>
+> jupiterAphelion   :: Double
+> jupiterAphelion   = 8.165208e11
+>
+> jupiterMajRad :: Double
+> jupiterMajRad = (jupiterPerihelion + jupiterAphelion) / 2
+>
+> conv x = x * 414.9 * (360 / (2 * pi)) * 3600
+>
+> deltaThetas majRad mass =
+>   zipWith (*)
+>   (perturbations $ mercuryMajRad / majRad)
+>   (repeat $ pi * mass / sunMass)
+>
+> coeffs :: [Rational]
+> coeffs = zipWith (*) [3,5..] alphas
+>
+> alphas :: [Rational]
+> alphas = zipWith (*)
+>          (map (^2) $ drop 1 $ filter (/= 0) $ legendre0s)
+>          [2,4..]
+>
+> poly :: Num a => a -> [a]
+> poly x = map (x^) [3,5..]
+>
+> perturbationsR :: Rational -> [Rational]
+> perturbationsR x = zipWith (*) coeffs (poly x)
+>
+> perturbations :: Fractional a => a -> [a]
+> perturbations x = zipWith (*) (map fromRational coeffs) (poly x)
 
 > theta i =   sunPotential
 >         + innerPotential
