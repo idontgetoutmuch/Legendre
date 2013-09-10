@@ -385,6 +385,23 @@ B &= r^3\bigg(\frac{M}{r^2} - \alpha_1 r - \alpha_2 r^3 - \alpha_3 r^5 - \alpha_
 \end{align}
 $$
 
+Writing down the Lagrangian for a single planet we have
+
+$$
+\mathbb{L} = \frac{1}{2}m(\dot{r}^2 + r^2\dot{\theta}^2) + V(\boldsymbol{r})
+$$
+
+where $V$ is the total potential due to the Sun and the other planets
+(as calculated above).  $\theta$ is ignorable so we have a conserved
+quantity $mr^2\dot{\theta}$. We write $h$ for $r^2\dot{\theta}$ which
+is also conserved.
+
+Applying Lagrange's equation for $r$ we have
+
+$$
+\frac{\mathrm{d}}{\mathrm{d} t}\bigg(\frac{\partial \mathbb{L}}{\partial \dot{r}}\bigg) - \frac{\partial \mathbb{L}}{\partial r} = m\ddot{r} - mr\dot{\theta}^2  + \frac{\partial \mathbb{L}}{\partial r} = 0
+$$
+
 > earthPerihelion :: Double
 > earthPerihelion = 1.470983e11
 >
