@@ -11,7 +11,7 @@ stationary but itself rotates about the Sun, a phenomenon known as the
 precession of the perihelion. A calculation carried out using
 Newtonian mechanics gives a value at variance with observation. The
 deficit is explained using General Relativity although we do not apply
-the relativistic correction in this post.
+the relativistic correction in this article.
 
 Just to give a flavour of the Haskell, we will have to calculate
 values of the infinite series of [Legendre
@@ -301,6 +301,170 @@ $$
 \Phi(r) = -\frac{GM}{r} - \sum_{n=0}^\infty P_n^2(0) \Bigg[\sum_{a_i < r}\frac{G m_i}{a_i}\bigg(\frac{a_i}{r}\bigg)^{n+1} + \sum_{a_i > r}\frac{G m_i}{a_i}\bigg(\frac{r}{a_i}\bigg)^n\Bigg]
 $$
 
+Apsidal Angles
+--------------
+
+FIXME: Derive this from the Hamiltonian. And NB this only for one planet.
+
+The radial equation of motion is
+
+$$
+\ddot{r} - \frac{L^2}{r^3} = -\frac{M}{r^2} + \alpha_1 r + \alpha_2 r^3 + \alpha_3 r^5 + \alpha_4 r^7 + \ldots
+$$
+
+To make further progress we use the trick given in [@brown:SpaceTime].
+
+$$
+\begin{align}
+\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &= \frac{M}{r_{\mathrm{ap}}^2} - \alpha_1 r_{\mathrm{ap}} - \alpha_2 r_{\mathrm{ap}}^3 - \alpha_3 r_{\mathrm{ap}}^5 - \alpha_4 r_{\mathrm{ap}}^7 - \ldots \\
+\frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &= \frac{M}{r_{\mathrm{peri}}^2} - \alpha_1 r_{\mathrm{peri}} - \alpha_2 r_{\mathrm{peri}}^3 - \alpha_3 r_{\mathrm{peri}}^5 - \alpha_4 r_{\mathrm{peri}}^7 - \ldots
+\end{align}
+$$
+
+Defining $g$ by writing
+
+$$
+\frac{A}{r^2} + \frac{B}{r^3} = \frac{g(r)}{r^3}
+$$
+
+we have
+
+$$
+\begin{align}
+Ar_\mathrm{peri} + B &= g(r_\mathrm{peri}) \\
+Ar_\mathrm{ap} + B &= g(r_\mathrm{ap})
+\end{align}
+$$
+
+giving
+
+$$
+A = \frac{g(r_\mathrm{peri}) - g(r_\mathrm{ap})}{r_\mathrm{peri} - r_\mathrm{ap}}
+$$
+
+Using the Taylor approximation
+
+$$
+\begin{align}
+g(r_{\mathrm{peri}}) &\approx g(r_\mathrm{mean}) + \frac{r_{\mathrm{peri}} - r_{\mathrm{ap}}}{2} g'(r_\mathrm{mean}) \\
+g(r_{\mathrm{ap}}) &\approx g(r_\mathrm{mean}) - \frac{r_{\mathrm{peri}} - r_{\mathrm{ap}}}{2} g'(r_\mathrm{mean})
+\end{align}
+$$
+
+Thus
+
+$$
+A \approx g'(r_\mathrm{mean})
+$$
+
+Then since
+
+$$
+g(r) = Mr - \alpha_1 r^4 - \alpha_2 r^6 - \alpha_3 r^8 - \alpha_4 r^10 - \ldots
+$$
+
+We have
+
+$$
+A = g'(r_\mathrm{mean}) = M - 4\alpha_1 r_\mathrm{mean}^3 - 6\alpha_2 r_\mathrm{mean}^5 - 8\alpha_3 r_\mathrm{mean}^7 - 10\alpha_4 r_\mathrm{mean}^9 - \ldots
+$$
+
+It is a nuisance to be continually writing $r_\mathrm{peri}$. From now on this is denoted by $r$. Using
+
+$$
+B = r^3 f(r) - r A
+$$
+
+We obtain
+
+$$
+\begin{align}
+B &= r^3\bigg(\frac{M}{r^2} - \alpha_1 r - \alpha_2 r^3 - \alpha_3 r^5 - \alpha_4 r^7 - \ldots\bigg) \\
+  &\phantom{=} - r\bigg(M - 4\alpha_1 r^3 - 6\alpha_2 r^5 - 8\alpha_3 r^7 - 10\alpha_4 r^9 - \ldots\bigg) \\
+  &= 3\alpha_1 r^4 + 5\alpha_2 r^6 + 7\alpha_3 r^8 + 9\alpha_3 r^{10} + \ldots
+\end{align}
+$$
+
+> earthPerihelion :: Double
+> earthPerihelion = 1.470983e11
+>
+> earthAphelion   :: Double
+> earthAphelion   = 1.520982e11
+>
+> earthMajRad :: Double
+> earthMajRad = (earthPerihelion + earthAphelion) / 2
+>
+> venusMass = 4.8676e24
+> venusMajRad = 108208000e3
+>
+> mercuryMajRad = 57909100e3
+>
+> marsAphelion = 249209300e3
+> marsPerihelion = 206669000e3
+> marsMajRad = (marsAphelion + marsPerihelion) / 2
+> marsMass = 6.4185e23
+>
+> jupiterPerihelion :: Double
+> jupiterPerihelion = 7.405736e11
+>
+> jupiterAphelion   :: Double
+> jupiterAphelion   = 8.165208e11
+>
+> jupiterMajRad :: Double
+> jupiterMajRad = (jupiterPerihelion + jupiterAphelion) / 2
+>
+> conv x = x * 414.9 * (360 / (2 * pi)) * 3600
+>
+> deltaThetas majRad mass =
+>   zipWith (*)
+>   (perturbations $ mercuryMajRad / majRad)
+>   (repeat $ pi * mass / sunMass)
+>
+> coeffs :: [Rational]
+> coeffs = zipWith (*) [3,5..] alphas
+>
+> alphas :: [Rational]
+> alphas = zipWith (*)
+>          (map (^2) $ drop 1 $ filter (/= 0) $ legendre0s)
+>          [2,4..]
+>
+> poly :: Num a => a -> [a]
+> poly x = map (x^) [3,5..]
+>
+> perturbationsR :: Rational -> [Rational]
+> perturbationsR x = zipWith (*) coeffs (poly x)
+>
+> perturbations :: Fractional a => a -> [a]
+> perturbations x = zipWith (*) (map fromRational coeffs) (poly x)
+
+> theta i =   sunPotential
+>         + innerPotential
+>         + outerPotential
+>   where
+>     sunPotential = negate $ gConst * (massesOuter!!5) / (radius $ initQsOuter!!i)
+>     innerPotential = undefined
+>     outerPotential = undefined
+>     radius [x, y, z] = sqrt $ x^2 + y^2 + z^2
+>
+> main = putStrLn "Hello"
+
+    [ghci]
+    sum $ map conv $ take 10 $ deltaThetas jupiterMajRad jupiterMass
+
+Appendix
+--------
+
+Note the lectures by Fitzpatrick [@Fitz:Newtonian:Dynamics] use a
+different approximation for the apsidal angle
+
+$$
+\psi = \pi\bigg(3 + \frac{r \mathrm{d} F / \mathrm{d} r}{F}\bigg)^{-1/2}
+$$
+
+We do not derive this here but note that the expansion and
+approximation are not entirely straightforward and are given here for
+completenes.
+
 The radial force is given by $F(r) = -\mathrm{d}\Phi(r) / \mathrm{d} r$
 
 $$
@@ -377,68 +541,5 @@ $$
 \end{align}
 $$
 
-> earthPerihelion :: Double
-> earthPerihelion = 1.470983e11
->
-> earthAphelion   :: Double
-> earthAphelion   = 1.520982e11
->
-> earthMajRad :: Double
-> earthMajRad = (earthPerihelion + earthAphelion) / 2
->
-> venusMass = 4.8676e24
-> venusMajRad = 108208000e3
->
-> mercuryMajRad = 57909100e3
->
-> marsAphelion = 249209300e3
-> marsPerihelion = 206669000e3
-> marsMajRad = (marsAphelion + marsPerihelion) / 2
-> marsMass = 6.4185e23
->
-> jupiterPerihelion :: Double
-> jupiterPerihelion = 7.405736e11
->
-> jupiterAphelion   :: Double
-> jupiterAphelion   = 8.165208e11
->
-> jupiterMajRad :: Double
-> jupiterMajRad = (jupiterPerihelion + jupiterAphelion) / 2
->
-> conv x = x * 414.9 * (360 / (2 * pi)) * 3600
->
-> deltaThetas majRad mass =
->   zipWith (*)
->   (perturbations $ mercuryMajRad / majRad)
->   (repeat $ pi * mass / sunMass)
->
-> coeffs :: [Rational]
-> coeffs = zipWith (*) [3,5..] alphas
->
-> alphas :: [Rational]
-> alphas = zipWith (*)
->          (map (^2) $ drop 1 $ filter (/= 0) $ legendre0s)
->          [2,4..]
->
-> poly :: Num a => a -> [a]
-> poly x = map (x^) [3,5..]
->
-> perturbationsR :: Rational -> [Rational]
-> perturbationsR x = zipWith (*) coeffs (poly x)
->
-> perturbations :: Fractional a => a -> [a]
-> perturbations x = zipWith (*) (map fromRational coeffs) (poly x)
-
-> theta i =   sunPotential
->         + innerPotential
->         + outerPotential
->   where
->     sunPotential = negate $ gConst * (massesOuter!!5) / (radius $ initQsOuter!!i)
->     innerPotential = undefined
->     outerPotential = undefined
->     radius [x, y, z] = sqrt $ x^2 + y^2 + z^2
->
-> main = putStrLn "Hello"
-
-    [ghci]
-    sum $ map conv $ take 10 $ deltaThetas jupiterMajRad jupiterMass
+Bibliography
+------------
