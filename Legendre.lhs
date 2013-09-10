@@ -304,13 +304,40 @@ $$
 Apsidal Angles
 --------------
 
-FIXME: Derive this from the Hamiltonian. And NB this only for one planet.
-
-The radial equation of motion is
+Writing down the Lagrangian for a single planet we have
 
 $$
-\ddot{r} - \frac{L^2}{r^3} = -\frac{M}{r^2} + \alpha_1 r + \alpha_2 r^3 + \alpha_3 r^5 + \alpha_4 r^7 + \ldots
+\mathbb{L} = \frac{1}{2}m(\dot{r}^2 + r^2\dot{\theta}^2) + \Phi(\boldsymbol{r})
 $$
+
+where $\Phi$ is the total potential due to the Sun and the other planets
+(as calculated above).  $\theta$ is ignorable so we have a conserved
+quantity $mr^2\dot{\theta}$. We write $h$ for $r^2\dot{\theta}$ which
+is also conserved.
+
+Applying Lagrange's equation for $r$ we have
+
+$$
+\frac{\mathrm{d}}{\mathrm{d} t}\bigg(\frac{\partial \mathbb{L}}{\partial \dot{r}}\bigg) - \frac{\partial \mathbb{L}}{\partial r} = m\ddot{r} - mr\dot{\theta}^2  + \frac{\partial \Phi}{\partial r} = 0
+$$
+
+Thus the radial equation of motion is
+
+$$
+\ddot{r} - \frac{h^2}{r^3} =
+       -\frac{GM}{r^2}
+       - \sum_{n=0}^\infty P_n^2(0) \Bigg[
+         \sum_{a_i < r}\frac{G m_i}{a_i^2}(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
+       - \sum_{a_i > r}\frac{G m_i}{a_i^2}n\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
+$$
+
+FIXME: A record of the old calculations
+
+$$
+\ddot{r} - \frac{h^2}{r^3} = -\frac{M}{r^2} + \alpha_1 r + \alpha_2 r^3 + \alpha_3 r^5 + \alpha_4 r^7 + \ldots
+$$
+
+FIXME: End
 
 To make further progress we use the trick given in [@brown:SpaceTime].
 
@@ -383,23 +410,6 @@ B &= r^3\bigg(\frac{M}{r^2} - \alpha_1 r - \alpha_2 r^3 - \alpha_3 r^5 - \alpha_
   &\phantom{=} - r\bigg(M - 4\alpha_1 r^3 - 6\alpha_2 r^5 - 8\alpha_3 r^7 - 10\alpha_4 r^9 - \ldots\bigg) \\
   &= 3\alpha_1 r^4 + 5\alpha_2 r^6 + 7\alpha_3 r^8 + 9\alpha_3 r^{10} + \ldots
 \end{align}
-$$
-
-Writing down the Lagrangian for a single planet we have
-
-$$
-\mathbb{L} = \frac{1}{2}m(\dot{r}^2 + r^2\dot{\theta}^2) + V(\boldsymbol{r})
-$$
-
-where $V$ is the total potential due to the Sun and the other planets
-(as calculated above).  $\theta$ is ignorable so we have a conserved
-quantity $mr^2\dot{\theta}$. We write $h$ for $r^2\dot{\theta}$ which
-is also conserved.
-
-Applying Lagrange's equation for $r$ we have
-
-$$
-\frac{\mathrm{d}}{\mathrm{d} t}\bigg(\frac{\partial \mathbb{L}}{\partial \dot{r}}\bigg) - \frac{\partial \mathbb{L}}{\partial r} = m\ddot{r} - mr\dot{\theta}^2  + \frac{\partial \mathbb{L}}{\partial r} = 0
 $$
 
 > earthPerihelion :: Double
