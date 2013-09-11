@@ -337,27 +337,16 @@ $$
        - \sum_{a_i > r}\frac{G m_i}{a_i^2}n\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
 $$
 
-FIXME: A record of the old calculations
-
-$$
-\ddot{r} - \frac{h^2}{r^3} = -\frac{M}{r^2} + \alpha_1 r + \alpha_2 r^3 + \alpha_3 r^5 + \alpha_4 r^7 + \ldots
-$$
-
-FIXME: End
-
 To make further progress let us take just one term for a ring outside the planet of consideration and use the trick given in [@brown:SpaceTime].
 
 $$
 \begin{align}
 \frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &=
- \frac{M}{r_{\mathrm{ap}}^2} - \alpha_1 r_{\mathrm{ap}} - \alpha_2 r_{\mathrm{ap}}^3 - \alpha_3 r_{\mathrm{ap}}^5 - \alpha_4 r_{\mathrm{ap}}^7 - \ldots \\
-\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &=
 \frac{M}{r_{\mathrm{ap}}^2} -
 \sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n-1}\Bigg] \\
 \frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &=
 \frac{M}{r_{\mathrm{peri}}^2} -
-\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n-1}\Bigg] \\
-\frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &= \frac{M}{r_{\mathrm{peri}}^2} - \alpha_1 r_{\mathrm{peri}} - \alpha_2 r_{\mathrm{peri}}^3 - \alpha_3 r_{\mathrm{peri}}^5 - \alpha_4 r_{\mathrm{peri}}^7 - \ldots
+\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n-1}\Bigg]
 \end{align}
 $$
 
@@ -404,19 +393,11 @@ g(r) = Mr -
 \sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n+2}\Bigg]
 $$
 
-$$
-g(r) = Mr - \alpha_1 r^4 - \alpha_2 r^6 - \alpha_3 r^8 - \alpha_4 r^10 - \ldots
-$$
-
 We have
 
 $$
 A = g'(r_\mathrm{mean}) = M -
 \sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n+1}\Bigg]
-$$
-
-$$
-A = g'(r_\mathrm{mean}) = M - 4\alpha_1 r_\mathrm{mean}^3 - 6\alpha_2 r_\mathrm{mean}^5 - 8\alpha_3 r_\mathrm{mean}^7 - 10\alpha_4 r_\mathrm{mean}^9 - \ldots
 $$
 
 It is a nuisance to be continually writing $r_\mathrm{peri}$. From now on this is denoted by $r$. Using
@@ -426,14 +407,6 @@ B = r^3 g(r) - r A
 $$
 
 We obtain
-
-$$
-\begin{align}
-B &= r^3\bigg(\frac{M}{r^2} - \alpha_1 r - \alpha_2 r^3 - \alpha_3 r^5 - \alpha_4 r^7 - \ldots\bigg) \\
-  &\phantom{=} - r\bigg(M - 4\alpha_1 r^3 - 6\alpha_2 r^5 - 8\alpha_3 r^7 - 10\alpha_4 r^9 - \ldots\bigg) \\
-  &= 3\alpha_1 r^4 + 5\alpha_2 r^6 + 7\alpha_3 r^8 + 9\alpha_3 r^{10} + \ldots
-\end{align}
-$$
 
 $$
 \begin{align}
@@ -477,7 +450,7 @@ $$
 Letting $u = 1 /r$ we can re-write this as
 
 $$
-\frac{1}{(1 - B / h^2)} \frac{\mathrm{d}^2 r}{\mathrm{d} \theta^2} + u = \frac{A}{h^2(1 - B / h^2)}
+\frac{1}{(1 - B / h^2)} \frac{\mathrm{d}^2 u}{\mathrm{d} \theta^2} + u = \frac{A}{h^2(1 - B / h^2)}
 $$
 
 This is the equation for simple harmonic motion with $\omega^2 = 1 - B
@@ -582,7 +555,8 @@ $$
 
 We do not derive this here but note that the expansion and
 approximation are not entirely straightforward and are given here for
-completenes.
+completenes. Note that the result derived this way is identical to the
+result obtained in the main body of the article.
 
 The radial force is given by $F(r) = -\mathrm{d}\Phi(r) / \mathrm{d} r$
 
