@@ -304,6 +304,12 @@ $$
 Apsidal Angles
 --------------
 
+An [apsis](http://en.wikipedia.org/wiki/Apsis "Wikipedia definition") is
+the closest and furthest point that a planet reaches i.e. the
+perihelion and the aphelion. Without the perturbing influence of the
+outer planets the angle between these points, the apsidal angle, would
+be $\pi$. In presence of the outer planets this is no longer the case.
+
 Writing down the Lagrangian for a single planet we have
 
 $$
@@ -461,6 +467,42 @@ $$
          &= \frac{h}{r^2}\frac{\mathrm{d}}{\mathrm{d} \theta}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg)
 \end{align}
 $$
+
+Thus we have
+
+$$
+\frac{\mathrm{d}}{\mathrm{d} \theta}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg) - \frac{(h^2 - B)}{r} = -\frac{A}{r^2}
+$$
+
+Letting $u = 1 /r$ we can re-write this as
+
+$$
+\frac{1}{(1 - B / h^2)} \frac{\mathrm{d}^2 r}{\mathrm{d} \theta^2} + u = \frac{A}{h^2(1 - B / h^2)}
+$$
+
+This is the equation for simple harmonic motion with $\omega^2 = 1 - B
+/ h^2$ and since for a circular orbit $h^2 = GMr$ we can write
+
+$$
+\begin{align}
+\omega &= \sqrt{1 - B / h^2} \approx 1 - \frac{1}{2}\frac{B}{h^2} \\
+       &= 1 -  \frac{1}{2}\frac{m}{M}\sum_{n=0}^\infty P_n^2(0) n(n+1)\bigg(\frac{r}{a}\bigg)^{n+1} \\
+\end{align}
+$$
+
+and therefore the change in radians per revolution is
+
+$$
+\Delta \theta = |2\pi (\omega - 1)| = \pi\frac{m}{M}\sum_{n=0}^\infty P_n^2(0) n(n+1)\bigg(\frac{r}{a}\bigg)^{n+1}
+$$
+
+To convert this to arc-seconds per century we apply a conversion factor
+
+$$
+414.9 \frac{360}{2\pi} 3600
+$$
+
+where 414.9 is the number of orbits of Mercury per century.
 
 > earthPerihelion :: Double
 > earthPerihelion = 1.470983e11
