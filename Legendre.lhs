@@ -339,11 +339,18 @@ $$
 
 FIXME: End
 
-To make further progress we use the trick given in [@brown:SpaceTime].
+To make further progress let us take just one term for a ring outside the planet of consideration and use the trick given in [@brown:SpaceTime].
 
 $$
 \begin{align}
-\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &= \frac{M}{r_{\mathrm{ap}}^2} - \alpha_1 r_{\mathrm{ap}} - \alpha_2 r_{\mathrm{ap}}^3 - \alpha_3 r_{\mathrm{ap}}^5 - \alpha_4 r_{\mathrm{ap}}^7 - \ldots \\
+\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &=
+ \frac{M}{r_{\mathrm{ap}}^2} - \alpha_1 r_{\mathrm{ap}} - \alpha_2 r_{\mathrm{ap}}^3 - \alpha_3 r_{\mathrm{ap}}^5 - \alpha_4 r_{\mathrm{ap}}^7 - \ldots \\
+\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &=
+\frac{M}{r_{\mathrm{ap}}^2} -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n-1}\Bigg] \\
+\frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &=
+\frac{M}{r_{\mathrm{peri}}^2} -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n-1}\Bigg] \\
 \frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &= \frac{M}{r_{\mathrm{peri}}^2} - \alpha_1 r_{\mathrm{peri}} - \alpha_2 r_{\mathrm{peri}}^3 - \alpha_3 r_{\mathrm{peri}}^5 - \alpha_4 r_{\mathrm{peri}}^7 - \ldots
 \end{align}
 $$
@@ -387,10 +394,20 @@ $$
 Then since
 
 $$
+g(r) = Mr -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n+2}\Bigg]
+$$
+
+$$
 g(r) = Mr - \alpha_1 r^4 - \alpha_2 r^6 - \alpha_3 r^8 - \alpha_4 r^10 - \ldots
 $$
 
 We have
+
+$$
+A = g'(r_\mathrm{mean}) = M -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n+1}\Bigg]
+$$
 
 $$
 A = g'(r_\mathrm{mean}) = M - 4\alpha_1 r_\mathrm{mean}^3 - 6\alpha_2 r_\mathrm{mean}^5 - 8\alpha_3 r_\mathrm{mean}^7 - 10\alpha_4 r_\mathrm{mean}^9 - \ldots
@@ -399,7 +416,7 @@ $$
 It is a nuisance to be continually writing $r_\mathrm{peri}$. From now on this is denoted by $r$. Using
 
 $$
-B = r^3 f(r) - r A
+B = r^3 g(r) - r A
 $$
 
 We obtain
@@ -409,6 +426,39 @@ $$
 B &= r^3\bigg(\frac{M}{r^2} - \alpha_1 r - \alpha_2 r^3 - \alpha_3 r^5 - \alpha_4 r^7 - \ldots\bigg) \\
   &\phantom{=} - r\bigg(M - 4\alpha_1 r^3 - 6\alpha_2 r^5 - 8\alpha_3 r^7 - 10\alpha_4 r^9 - \ldots\bigg) \\
   &= 3\alpha_1 r^4 + 5\alpha_2 r^6 + 7\alpha_3 r^8 + 9\alpha_3 r^{10} + \ldots
+\end{align}
+$$
+
+$$
+\begin{align}
+B &= Mr -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r}{a}\bigg)^{n+2}\Bigg] \\
+  &\phantom{=} -r\Bigg(M -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r}{a}\bigg)^{n+1}\Bigg]\Bigg) \\
+  &= \sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n(n+1)\bigg(\frac{r}{a}\bigg)^{n+2}\Bigg] \\
+\end{align}
+$$
+
+We can therefore re-write the radial equation of motion approximately as
+
+$$
+\begin{align}
+\ddot{r} - \frac{h^2}{r^3}     &= -\frac{A}{r^2} - \frac{B}{r^3} \\
+\ddot{r} - \frac{h^2 - B}{r^3} &= -\frac{A}{r^2}
+\end{align}
+$$
+
+Now let us re-write the equation of motion as a relation between $r$ and $\theta$.
+
+$$
+\dot{r} = \frac{\mathrm{d} \theta}{\mathrm{d} t}\frac{\mathrm{d} t}{\mathrm{d} \theta}\frac{\mathrm{d} r}{\mathrm{d} t} = \frac{h}{r^2}\frac{\mathrm{d} r}{\mathrm{d} \theta}
+$$
+
+$$
+\begin{align}
+\ddot{r} &= \frac{h}{r^2}\frac{\mathrm{d}}{\mathrm{d} t}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg) \\
+         &= \frac{h}{r^2}\frac{\mathrm{d} \theta}{\mathrm{d} t}\frac{\mathrm{d} t}{\mathrm{d} \theta}\frac{\mathrm{d}}{\mathrm{d} t}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg) \\
+         &= \frac{h}{r^2}\frac{\mathrm{d}}{\mathrm{d} \theta}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg)
 \end{align}
 $$
 
