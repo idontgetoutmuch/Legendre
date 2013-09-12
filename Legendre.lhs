@@ -31,12 +31,19 @@ definition"). We could use the [Stream
 package](http://hackage.haskell.org/package/Stream "Hackage") but let
 us stay with lists.
 
+> {-# OPTIONS_GHC -Wall                     #-}
+> {-# OPTIONS_GHC -fno-warn-name-shadowing  #-}
+> {-# OPTIONS_GHC -fno-warn-type-defaults   #-}
+> {-# OPTIONS_GHC -fno-warn-unused-do-bind  #-}
+>
+> {-# LANGUAGE NoMonomorphismRestriction    #-}
+>
 > module Legendre (
 >     legendre0s
 >   , main) where
 >
 > import Data.List
->
+> import Text.Printf
 > import Initial
 >
 > legendre0s :: [Rational]
@@ -52,8 +59,13 @@ us stay with lists.
 >     g ([],  _) = Nothing
 >     g (x:xs, ys) = Just (x, (ys, xs))
 
+And now we can calculate any number of terms we need
+
     [ghci]
     take 10 $ legendre0s
+
+The reader wishing to skip the physics and the mathematical derivation
+can go straight to the section on [implementation](#Implementation)
 
 This article calculates the precession in Haskell using Newtonian
 methods.  Over a long enough period, the gravitational effect of each
@@ -86,9 +98,10 @@ Acknowledgement
 ---------------
 
 This blog follows the exposition given in [@Fitz:Newtonian:Dynamics]
-concretized for the precession of the perihelion of Mercury with some
-of the elisions expanded. More details on Legendre Polynomials can be
-found in [@Bowles:Legendre:Polynomials].
+and [@brown:SpaceTime] concretized for the precession of the
+perihelion of Mercury with some of the elisions expanded. More details
+on Legendre Polynomials can be found in
+[@Bowles:Legendre:Polynomials].
 
 Axially Symmetric Mass Distributions
 ------------------------------------
@@ -101,11 +114,11 @@ azimuthal angle) runs from $0$ to $2\pi$.
 For clarity we give their conversion to cartesian co-ordinates.
 
 $$
-\begin{align}
+\begin{aligned}
 x &= r\sin\phi\cos\theta \\
 y &= r\sin\phi\sin\theta \\
 z &= r\cos\phi
-\end{align}
+\end{aligned}
 $$
 
 The volume element in spherical polar co-ordinates is given by
@@ -130,10 +143,10 @@ If the mass distribution is axially symmetric then so will the
 potential. In spherical polar co-ordinates:
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi(r, \phi) &= -G\int_0^{2\pi} \int_0^\pi \int_0^\infty \frac{\rho(r', \phi')}{\|\boldsymbol{r}' - \boldsymbol{r}\|}\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'\, \mathrm{d} \theta' \\
               &= -2\pi G\int_0^\pi \int_0^\infty \rho(r', \phi') \langle\|\boldsymbol{r}' - \boldsymbol{r}\|^{-1}\rangle\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi' \\
-\end{align}
+\end{aligned}
 $$
 
 where $\langle\ldots\rangle$ denotes the average over the azimuthal angle.
@@ -145,14 +158,14 @@ $$
 Expanding the middle term on the right hand size and noting that $\theta = 0$:
 
 $$
-\begin{align}
+\begin{aligned}
 \boldsymbol{r}\cdot\boldsymbol{r}' &= r\sin\phi\cos\theta r'\sin\phi'\cos\theta' +
                                       r\sin\phi\sin\theta r'\sin\phi'\sin\theta' +
                                       r\cos\phi r'\cos\phi' \\
                                    &= r\sin\phi r'\sin\phi'\cos\theta' +
                                       r\cos\phi r'\cos\phi' \\
                                    &= rr'(\sin\phi\sin\phi'\cos\theta' + \cos\phi\cos\phi')
-\end{align}
+\end{aligned}
 $$
 
 Writing $F = \sin\phi\sin\phi'\cos\theta' + \cos\phi\cos\phi'$ and noting that
@@ -188,23 +201,23 @@ Substituting into the equation for the potential for axially symmetric
 mass distributions gives us
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi(r, \phi) &= -2\pi G\int_0^\pi \int_0^\infty \rho(r', \phi') \langle\|\boldsymbol{r}' - \boldsymbol{r}\|^{-1}\rangle\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi' \\
              &=  -2\pi G\int_0^\pi \int_0^r \rho(r', \phi')\frac{1}{r}\sum_{n=0}^\infty{\bigg(\frac{r'}{r}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'
 \\
              &\phantom{=}  -2\pi G\int_0^\pi \int_r^\infty \rho(r', \phi')\frac{1}{r'}\sum_{n=0}^\infty{\bigg(\frac{r}{r'}}\bigg)^n P_n(\cos\phi) P_n(\cos\phi')\, r'^2\sin\phi'\, \mathrm{d} r\, \mathrm{d} \phi'
 \\
              &= \sum_{n=0}^\infty \Phi_n(r) P_n(\cos\phi)
-\end{align}
+\end{aligned}
 $$
 
 where
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi_n(r) &= -\frac{2\pi G}{r^{n+1}}\int_0^r\int_0^\pi r'^{n+2}\rho(r', \phi')P_n(\cos\phi')\sin\phi'\,\mathrm{d}r'\,\mathrm{d}\phi' \\
           &\phantom{=} -2\pi G r^n\int_r^\infty\int_0^\pi r'^{1-n}\rho(r', \phi')P_n(\cos\phi')\sin\phi'\,\mathrm{d}r'\,\mathrm{d}\phi'
-\end{align}
+\end{aligned}
 $$
 
 Note that the first integral has limits $0$ to $r$ and the second has limits $r$ to $\infty$.
@@ -231,10 +244,10 @@ $$
 Hence
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi_n(r) &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2}\rho_n(r')\,\mathrm{d}r' \\
           &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n}\rho_(r')\,\mathrm{d}r'\,\mathrm{d}r'
-\end{align}
+\end{aligned}
 $$
 
 Gravitational Potential of a Ring
@@ -243,42 +256,42 @@ Gravitational Potential of a Ring
 We now substitute in the axially symmetric density of a ring
 
 $$
-\begin{align}
+\begin{aligned}
 \rho_n(r) &= (n + 1/2)\int_0^\pi \rho(r, \phi) P_n(\cos\phi) \sin\phi\,\mathrm{d}\phi \\
           &=(n + 1/2)\int_0^\pi M \frac{\delta(\phi - \pi / 2) \delta(r - a)}{2\pi a^2} P_n(\cos\phi) \sin\phi\,\mathrm{d}\phi \\
           &= (n + 1/2) M \frac{\delta(r - a)}{2\pi a^2} P_n(0)
-\end{align}
+\end{aligned}
 $$
 
 Substituting again
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi_n(r) &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2}\rho_n(r')\,\mathrm{d}r' \\
           &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n}\rho_(r')\,\mathrm{d}r'\,\mathrm{d}r' \\
           &= -\frac{2\pi G}{(n + 1/2)r^{n+1}}\int_0^r r'^{n+2} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r' \\
           &\phantom{=} -\frac{2\pi G r^n}{n + 1/2}\int_r^\infty r'^{1-n} (n + 1/2) M \frac{\delta(r' - a)}{2\pi a^2} P_n(0) \,\mathrm{d}r'
-\end{align}
+\end{aligned}
 $$
 
 
 Thus for $a < r$
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi_n(r) &= -\frac{2\pi G}{r^{n+1}} a^{n+2} M \frac{1}{2\pi a^2} P_n(0) \\
           &= -\frac{G M P_n(0)}{a}\bigg(\frac{a}{r}\bigg)^{n+1}
-\end{align}
+\end{aligned}
 $$
 
 
 And for $r < a$
 
 $$
-\begin{align}
+\begin{aligned}
 \Phi_n(r) &= -2\pi G r^n a^{1-n} M \frac{1}{2\pi a^2} P_n(0) \\
           &= -\frac{G M P_n(0)}{a} \bigg(\frac{r}{a}\bigg)^n
-\end{align}
+\end{aligned}
 $$
 
 Thus at $\phi = \pi / 2$ and $r < a$ we have
@@ -337,17 +350,21 @@ $$
        - \sum_{a_i > r}\frac{G m_i}{a_i^2}n\bigg(\frac{r}{a_i}\bigg)^{n-1}\Bigg]
 $$
 
-To make further progress let us take just one term for a ring outside the planet of consideration and use the trick given in [@brown:SpaceTime].
+To make further progress let us take just one term for a ring outside
+the planet of consideration and use the trick given in
+[@brown:SpaceTime]. Writing $r_\mathrm{a}$ for the aphelion,
+$r_\mathrm{p}$ for the perihelion and $r_\mathrm{m}$ for the major
+radius we have
 
 $$
-\begin{align}
-\frac{A}{r_{\mathrm{ap}}^2} + \frac{B}{r_{\mathrm{ap}}^3} &=
-\frac{M}{r_{\mathrm{ap}}^2} -
-\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n-1}\Bigg] \\
-\frac{A}{r_{\mathrm{peri}}^2} + \frac{B}{r_{\mathrm{peri}}^3} &=
-\frac{M}{r_{\mathrm{peri}}^2} -
-\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n-1}\Bigg]
-\end{align}
+\begin{aligned}
+\frac{A}{r_{\mathrm{a}}^2} + \frac{B}{r_{\mathrm{a}}^3} &=
+\frac{M}{r_{\mathrm{a}}^2} -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{a}}{a}\bigg)^{n-1}\Bigg] \\
+\frac{A}{r_{\mathrm{p}}^2} + \frac{B}{r_{\mathrm{p}}^3} &=
+\frac{M}{r_{\mathrm{p}}^2} -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[\frac{G m}{a^2}n\bigg(\frac{r_\mathrm{p}}{a}\bigg)^{n-1}\Bigg]
+\end{aligned}
 $$
 
 Defining $g$ by writing
@@ -359,48 +376,48 @@ $$
 we have
 
 $$
-\begin{align}
-Ar_\mathrm{peri} + B &= g(r_\mathrm{peri}) \\
-Ar_\mathrm{ap} + B &= g(r_\mathrm{ap})
-\end{align}
+\begin{aligned}
+Ar_\mathrm{p} + B &= g(r_\mathrm{p}) \\
+Ar_\mathrm{a} + B &= g(r_\mathrm{a})
+\end{aligned}
 $$
 
 giving
 
 $$
-A = \frac{g(r_\mathrm{peri}) - g(r_\mathrm{ap})}{r_\mathrm{peri} - r_\mathrm{ap}}
+A = \frac{g(r_\mathrm{p}) - g(r_\mathrm{a})}{r_\mathrm{p} - r_\mathrm{a}}
 $$
 
 Using the Taylor approximation
 
 $$
-\begin{align}
-g(r_{\mathrm{peri}}) &\approx g(r_\mathrm{mean}) + \frac{r_{\mathrm{peri}} - r_{\mathrm{ap}}}{2} g'(r_\mathrm{mean}) \\
-g(r_{\mathrm{ap}}) &\approx g(r_\mathrm{mean}) - \frac{r_{\mathrm{peri}} - r_{\mathrm{ap}}}{2} g'(r_\mathrm{mean})
-\end{align}
+\begin{aligned}
+g(r_{\mathrm{p}}) &\approx g(r_\mathrm{m}) + \frac{r_{\mathrm{p}} - r_{\mathrm{a}}}{2} g'(r_\mathrm{m}) \\
+g(r_{\mathrm{a}}) &\approx g(r_\mathrm{m}) - \frac{r_{\mathrm{p}} - r_{\mathrm{a}}}{2} g'(r_\mathrm{m})
+\end{aligned}
 $$
 
 Thus
 
 $$
-A \approx g'(r_\mathrm{mean})
+A \approx g'(r_\mathrm{m})
 $$
 
 Then since
 
 $$
 g(r) = Mr -
-\sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r_\mathrm{ap}}{a}\bigg)^{n+2}\Bigg]
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r}{a}\bigg)^{n+2}\Bigg]
 $$
 
 We have
 
 $$
-A = g'(r_\mathrm{mean}) = M -
-\sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r_\mathrm{peri}}{a}\bigg)^{n+1}\Bigg]
+A = g'(r_\mathrm{m}) = M -
+\sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r_\mathrm{m}}{a}\bigg)^{n+1}\Bigg]
 $$
 
-It is a nuisance to be continually writing $r_\mathrm{peri}$. From now on this is denoted by $r$. Using
+It is a nuisance to be continually writing $r_\mathrm{m}$. From now on this is denoted by $r$. Using
 
 $$
 B = r^3 g(r) - r A
@@ -409,22 +426,22 @@ $$
 We obtain
 
 $$
-\begin{align}
+\begin{aligned}
 B &= Mr -
 \sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n\bigg(\frac{r}{a}\bigg)^{n+2}\Bigg] \\
   &\phantom{=} -r\Bigg(M -
 \sum_{n=0}^\infty P_n^2(0) \Bigg[G m n(n+2)\bigg(\frac{r}{a}\bigg)^{n+1}\Bigg]\Bigg) \\
   &= \sum_{n=0}^\infty P_n^2(0) \Bigg[G m a n(n+1)\bigg(\frac{r}{a}\bigg)^{n+2}\Bigg] \\
-\end{align}
+\end{aligned}
 $$
 
 We can therefore re-write the radial equation of motion approximately as
 
 $$
-\begin{align}
+\begin{aligned}
 \ddot{r} - \frac{h^2}{r^3}     &= -\frac{A}{r^2} - \frac{B}{r^3} \\
 \ddot{r} - \frac{h^2 - B}{r^3} &= -\frac{A}{r^2}
-\end{align}
+\end{aligned}
 $$
 
 Now let us re-write the equation of motion as a relation between $r$ and $\theta$.
@@ -434,11 +451,11 @@ $$
 $$
 
 $$
-\begin{align}
+\begin{aligned}
 \ddot{r} &= \frac{h}{r^2}\frac{\mathrm{d}}{\mathrm{d} t}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg) \\
          &= \frac{h}{r^2}\frac{\mathrm{d} \theta}{\mathrm{d} t}\frac{\mathrm{d} t}{\mathrm{d} \theta}\frac{\mathrm{d}}{\mathrm{d} t}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg) \\
          &= \frac{h}{r^2}\frac{\mathrm{d}}{\mathrm{d} \theta}\bigg(r^{-2}\frac{\mathrm{d} r}{\mathrm{d} \theta}\bigg)
-\end{align}
+\end{aligned}
 $$
 
 Thus we have
@@ -457,10 +474,10 @@ This is the equation for simple harmonic motion with $\omega^2 = 1 - B
 / h^2$ and since for a circular orbit $h^2 = GMr$ we can write
 
 $$
-\begin{align}
+\begin{aligned}
 \omega &= \sqrt{1 - B / h^2} \approx 1 - \frac{1}{2}\frac{B}{h^2} \\
        &= 1 -  \frac{1}{2}\frac{m}{M}\sum_{n=0}^\infty P_n^2(0) n(n+1)\bigg(\frac{r}{a}\bigg)^{n+1} \\
-\end{align}
+\end{aligned}
 $$
 
 and therefore the change in radians per revolution is
@@ -477,71 +494,69 @@ $$
 
 where 414.9 is the number of orbits of Mercury per century.
 
-> earthPerihelion :: Double
-> earthPerihelion = 1.470983e11
->
-> earthAphelion   :: Double
-> earthAphelion   = 1.520982e11
->
-> earthMajRad :: Double
-> earthMajRad = (earthPerihelion + earthAphelion) / 2
->
-> venusMass = 4.8676e24
-> venusMajRad = 108208000e3
->
-> mercuryMajRad = 57909100e3
->
-> marsAphelion = 249209300e3
-> marsPerihelion = 206669000e3
-> marsMajRad = (marsAphelion + marsPerihelion) / 2
-> marsMass = 6.4185e23
->
-> jupiterPerihelion :: Double
-> jupiterPerihelion = 7.405736e11
->
-> jupiterAphelion   :: Double
-> jupiterAphelion   = 8.165208e11
->
-> jupiterMajRad :: Double
-> jupiterMajRad = (jupiterPerihelion + jupiterAphelion) / 2
->
-> conv x = x * 414.9 * (360 / (2 * pi)) * 3600
->
-> deltaThetas majRad mass =
->   zipWith (*)
->   (perturbations $ mercuryMajRad / majRad)
->   (repeat $ pi * mass / sunMass)
->
-> coeffs :: [Rational]
-> coeffs = zipWith (*) [3,5..] alphas
->
-> alphas :: [Rational]
-> alphas = zipWith (*)
->          (map (^2) $ drop 1 $ filter (/= 0) $ legendre0s)
->          [2,4..]
->
-> poly :: Num a => a -> [a]
-> poly x = map (x^) [3,5..]
->
-> perturbationsR :: Rational -> [Rational]
-> perturbationsR x = zipWith (*) coeffs (poly x)
->
-> perturbations :: Fractional a => a -> [a]
-> perturbations x = zipWith (*) (map fromRational coeffs) (poly x)
+Implementation
+--------------
 
-> theta i =   sunPotential
->         + innerPotential
->         + outerPotential
->   where
->     sunPotential = negate $ gConst * (massesOuter!!5) / (radius $ initQsOuter!!i)
->     innerPotential = undefined
->     outerPotential = undefined
->     radius [x, y, z] = sqrt $ x^2 + y^2 + z^2
->
-> main = putStrLn "Hello"
+The implementation is almost trivial given that we have previously
+calculated the Legendre Polynomials (evaluated at 0). First let us
+make the code a bit easier to read by defining arithmetic pointwise
+(note that for polynomials we would not want to do this).
+
+> instance Num a => Num [a] where
+>   (*) = zipWith (*)
+>   (+) = zipWith (+)
+>   abs         = error "abs makes no sense for infinite series"
+>   signum      = error "signum makes no sense for infinite series"
+>   fromInteger = error "fromInteger makes no sense for infinite series"
+
+Next we define our conversion function so that we can compare our
+results against those obtained by [Le
+Verrier](http://en.wikipedia.org/wiki/Urbain_Le_Verrier "Wikipedia
+reference").
+
+> conv :: Floating a => a -> a
+> conv x = x * 414.9 * (360 / (2 * pi)) * 3600
+
+The main calculation for which we can take any number of terms.
+
+> perturbations :: Double -> Double -> Double -> Double -> [Double]
+> perturbations mRing mSun planetR ringR =
+>   map ((pi * (mRing / mSun)) *) xs
+>     where
+>       xs = (map (^2) $ map fromRational legendre0s) *
+>            (map fromIntegral [0..]) *
+>            (map fromIntegral [1..]) *
+>            (map ((planetR / ringR)^) [1..])
+
+Arbitrarily, let us take 20 terms.
+
+> predict :: Double -> Double -> Double -> Double
+> predict x y z = sum $
+>                 map conv $
+>                 take 20 $
+>                 perturbations x sunMass y z
+
+And now let us compare our calculations with Le Verrier's.
+
+> main :: IO ()
+> main = do
+>   printf "Venus   %3.1f %3.1f\n"
+>          (280.6 :: Double)
+>         (predict venusMass mercuryMajRad venusMajRad)
+>   printf "Earth    %3.1f  %3.1f\n"
+>          (83.6 :: Double)
+>          (predict earthMass mercuryMajRad earthMajRad)
+>   printf "Mars      %3.1f   %3.1f\n"
+>          (2.6 :: Double)
+>          (predict marsMass mercuryMajRad marsMajRad)
+>   printf "Jupiter %3.1f %3.1f\n"
+>          (152.6 :: Double)
+>          (predict jupiterMass mercuryMajRad jupiterMajRad)
 
     [ghci]
-    sum $ map conv $ take 10 $ deltaThetas jupiterMajRad jupiterMass
+    main
+
+Not too bad.
 
 Appendix
 --------
@@ -604,7 +619,7 @@ $$
 and a denominator which is dominated by the $-GM / r^2$. Thus
 
 $$
-\begin{align}
+\begin{aligned}
 2 + \frac{r \mathrm{d} F / \mathrm{d} r}{F} &\approx
 -\sum_{n=0}^\infty P_n^2(0) \Bigg[
 \sum_{a_i < r}\frac{m_i r^2}{M a_i^2}n(n+1)\bigg(\frac{a_i}{r}\bigg)^{n+2}
@@ -613,13 +628,13 @@ $$
 -\sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
   \sum_{a_i < r}\frac{m_i}{M}\bigg(\frac{a_i}{r}\bigg)^n
 + \sum_{a_i > r}\frac{m_i}{M}\bigg(\frac{r}{a_i}\bigg)^{n+1}\Bigg]
-\end{align}
+\end{aligned}
 $$
 
 Since this term is $\ll 1$ we can expand the term of interest further
 
 $$
-\begin{align}
+\begin{aligned}
 \bigg(1 + 2 + \frac{r \mathrm{d} F / \mathrm{d} r}{F}\bigg)^{-1/2} &\approx
 \Bigg(1
 -\sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
@@ -631,7 +646,7 @@ $$
   \sum_{n=0}^\infty P_n^2(0) n(n+1)\Bigg[
   \sum_{a_i < r}\frac{m_i}{M}\bigg(\frac{a_i}{r}\bigg)^n
 + \sum_{a_i > r}\frac{m_i}{M}\bigg(\frac{r}{a_i}\bigg)^{n+1}\Bigg]
-\end{align}
+\end{aligned}
 $$
 
 Bibliography

@@ -2,20 +2,58 @@
 {-# OPTIONS_GHC -fno-warn-name-shadowing  #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults   #-}
 
-{-# LANGUAGE NoMonomorphismRestriction    #-}
-{-# LANGUAGE FlexibleContexts             #-}
-{-# LANGUAGE ScopedTypeVariables          #-}
-
 module Initial (
     gConst
   , massesOuter
   , initQsOuter
   , sunMass
+  , venusMass
   , earthMass
+  , marsMass
   , jupiterMass
+  , mercuryMajRad
+  , venusMajRad
+  , earthMajRad
+  , marsMajRad
+  , jupiterMajRad
   ) where
 
 import Data.List.Split
+
+earthPerihelion :: Double
+earthPerihelion = 1.470983e11
+
+earthAphelion   :: Double
+earthAphelion   = 1.520982e11
+
+earthMajRad :: Double
+earthMajRad = (earthPerihelion + earthAphelion) / 2
+
+venusMass :: Double
+venusMass = 4.8676e24
+
+venusMajRad :: Double
+venusMajRad = 108208000e3
+
+mercuryMajRad :: Double
+mercuryMajRad = 57909100e3
+
+marsAphelion, marsPerihelion, marsMajRad :: Double
+marsAphelion = 249209300e3
+marsPerihelion = 206669000e3
+marsMajRad = (marsAphelion + marsPerihelion) / 2
+
+marsMass :: Double
+marsMass = 6.4185e23
+
+jupiterPerihelion :: Double
+jupiterPerihelion = 7.405736e11
+
+jupiterAphelion   :: Double
+jupiterAphelion   = 8.165208e11
+
+jupiterMajRad :: Double
+jupiterMajRad = (jupiterPerihelion + jupiterAphelion) / 2
 
 gConst :: Double
 gConst = 6.67384e-11
