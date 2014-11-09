@@ -57,31 +57,25 @@ $$
 > {-# OPTIONS_GHC -fno-warn-missing-methods  #-}
 > {-# OPTIONS_GHC -fno-warn-orphans          #-}
 
-> module Main where
+> module ChebDiff where
 
 > import Prelude hiding ( length, sum, zipWith, map, (++), reverse, drop, replicate )
 > import qualified Prelude as P
 > import Data.Complex
 > import Data.Vector hiding ( tail )
-> import qualified Data.Vector as V
 > import Numeric.FFT
-> import Debug.Trace
 
-> import qualified Control.Lens as L
 > import qualified Graphics.Rendering.Chart as C
 > import Graphics.Rendering.Chart.Backend.Diagrams
 > import Diagrams.Backend.Cairo.CmdLine
 > import Diagrams.Prelude hiding ( render, Renderable )
 > import Data.Default.Class
 
-> import Diagrams.Prelude
 > import Diagrams.Backend.CmdLine
-> import Diagrams.Backend.Cairo.CmdLine
-
-> import Text.Printf
 
 > import System.IO.Unsafe
 
+> bigN :: Int
 > bigN = 10
 
 > x :: Vector (Complex Double)
@@ -92,12 +86,15 @@ $$
 > v :: Vector (Complex Double)
 > v = map (\x -> exp x * sin ( 5 * x)) x
 
+> bigV :: Vector (Complex Double)
 > bigV = v ++ (reverse $ slice 1 (bigN - 1) v)
 
 > ii, jj, kk :: Vector (Complex Double)
 > ii = generate bigN fromIntegral
 > jj = cons 0 (generate (bigN - 1) (\i -> fromIntegral (i + 1 - bigN)))
 > kk = ii ++ jj
+
+> i1 :: Complex Double
 > i1 = 0.0 :+ 1.0
 
 > test :: IO ()
@@ -111,7 +108,7 @@ $$
 >   -- putStrLn $ show preInv
 >   putStrLn $ show bigW'
 
-> chebPoly :: (Num b, Num a, Eq a) => a -> b -> b
+> chebPoly :: Int -> Double -> Double
 > chebPoly 0 _ = 1
 > chebPoly 1 x = x
 > chebPoly n x = 2 * x * chebPoly (n - 1) x - chebPoly (n - 2) x
@@ -121,6 +118,36 @@ $$
 >   where
 >     chebUnfoldAux (a, b) = Just (a, (b, 2 * x * b - a))
 
+```{.dia width='800'}
+import ChebDiff
+
+dia = diag
+````
+
+> chebZeros :: Int -> Vector Double
+> chebZeros n = map f (enumFromN 0 (n + 1))
+>   where
+>     n' = fromIntegral n
+>     f k = cos (pi * (2 * k' + 1) / (2 * n' + 2))
+>       where
+>         k' = fromIntegral k
+
+> testZeros :: Int -> Vector Double
+> testZeros n = map (\z -> (chebUnfold n z)!(n - 1)) (chebZeros (n - 2))
+
+    [ghci]
+    testZeros 5
+
+> infixl 7 ^*
+> (^*) :: Num a => a -> Vector a -> Vector a
+> s ^* v = map (* s) v
+
+> infixl 7 .*
+> (.*) :: Num a => Vector a -> Vector a -> Vector a
+> (.*) = zipWith (*)
+
+
+> chart :: C.Renderable ()
 > chart = C.toRenderable layout
 >   where
 >     sinusoid n c = C.plot_lines_values .~ [[ (x, (chebUnfold n x)!(n - 1)) | x <- [-1.0,(-0.99)..1.0]]]
@@ -128,7 +155,7 @@ $$
 >                  $ C.plot_lines_title .~ ("n = " P.++ show n)
 >                  $ def
 > 
->     layout = C.layout_title .~ "ChebyShev Polynomials"
+>     layout = C.layout_title .~ "Chebyshev Polynomials"
 >            $ C.layout_plots .~ [C.toPlot (sinusoid 3 blue),
 >                                 C.toPlot (sinusoid 5 green),
 >                                 C.toPlot (sinusoid 7 red)
@@ -142,8 +169,9 @@ $$
 > diag =
 >   fst $ runBackend denv (C.render chart (500, 500))
 
+> main :: IO ()
 > main = do
->   displayHeader "diagrams/ChebyShev.svg" diag
+>   displayHeader "diagrams/Chebyshev.svg" diag
 >   putStrLn "Hello"
 > 
 >
