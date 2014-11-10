@@ -65,10 +65,12 @@ $$
 > import Data.Vector hiding ( tail )
 > import Numeric.FFT
 
+> import qualified Data.List as L
+
 > import qualified Graphics.Rendering.Chart as C
 > import Graphics.Rendering.Chart.Backend.Diagrams
 > import Diagrams.Backend.Cairo.CmdLine
-> import Diagrams.Prelude hiding ( render, Renderable )
+> import Diagrams.Prelude hiding ( render, Renderable, trace )
 > import Data.Default.Class
 
 > import Diagrams.Backend.CmdLine
@@ -118,6 +120,12 @@ $$
 >   where
 >     chebUnfoldAux (a, b) = Just (a, (b, 2 * x * b - a))
 
+> chebUnfoldL :: Int -> (Double -> Double) -> [[Double]]
+> chebUnfoldL n f = L.unfoldr chebUnfoldAux (P.replicate n 1, ys)
+>   where
+>     chebUnfoldAux (a, b) = Just (a, (b, P.zipWith3 (\x a b -> 2 * x * b - a) ys a b))
+>     ys = toList $ map f $ chebZeros n
+
 ```{.dia width='800'}
 import ChebDiff
 
@@ -125,18 +133,33 @@ dia = diag
 ````
 
 > chebZeros :: Int -> Vector Double
-> chebZeros n = map f (enumFromN 0 (n + 1))
+> chebZeros n = map f (enumFromN 0 n)
 >   where
->     n' = fromIntegral n
+>     n' = fromIntegral (n - 1)
 >     f k = cos (pi * (2 * k' + 1) / (2 * n' + 2))
 >       where
 >         k' = fromIntegral k
 
 > testZeros :: Int -> Vector Double
-> testZeros n = map (\z -> (chebUnfold n z)!(n - 1)) (chebZeros (n - 2))
+> testZeros n = map (\z -> (chebUnfold n z)!(n - 1)) (chebZeros (n - 1))
 
     [ghci]
     testZeros 5
+
+> y :: Int -> (Double -> Double) -> Vector Double
+> y n f = map f (chebZeros n)
+
+> c0 :: Int -> (Double -> Double) -> Double
+> c0 n f = 1 / (fromIntegral n + 1) *
+>          sum (y (n + 1) f .* (map ((!0) . (chebUnfold 3)) (chebZeros (n + 1))))
+
+> c1 :: Int -> (Double -> Double) -> Double
+> c1 n f = 2 / (fromIntegral n + 1) *
+>          sum (y (n + 1) f .* (map ((!1) . (chebUnfold 3)) (chebZeros (n + 1))))
+
+> c2 :: Int -> (Double -> Double) -> Double
+> c2 n f = 2 / (fromIntegral n + 1) *
+>          sum (y (n + 1) f .* (map ((!2) . (chebUnfold 3)) (chebZeros (n + 1))))
 
 > infixl 7 ^*
 > (^*) :: Num a => a -> Vector a -> Vector a
@@ -145,7 +168,6 @@ dia = diag
 > infixl 7 .*
 > (.*) :: Num a => Vector a -> Vector a -> Vector a
 > (.*) = zipWith (*)
-
 
 > chart :: C.Renderable ()
 > chart = C.toRenderable layout
