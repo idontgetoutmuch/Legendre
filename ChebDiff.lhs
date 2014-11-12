@@ -131,23 +131,26 @@ $$
 >       Just ((sum (t2 .* ys)) * 2 / n',
 >             (t2, zipWith3 (\x a b -> 2 * x * b - a) zs t1 t2))
 
-> chebPolVal :: Vector Double -> Vector Double -> Vector (Vector Double)
-> chebPolVal cs xs =
->   unfoldr chebPolValAux (initUjp2, initUjp1, initUjp1, V.init (V.init cs), 2)
+> chebPolVal :: Vector Double -> Vector Double -> Vector Double
+> chebPolVal cs xs = u .- xs .* ujp1
 >   where
+>     (u, ujp1) = us!(n-3)
+>     us        = unfoldr chebPolValAux (initU, initUjp1, ds)
+>
 >     initUjp1 = replicate m (cs!(n-1))
->     initUjp2 = map (+cs!(n-2)) $ map (2*cs!(n-1)*) xs
->     n = length cs
->     m = length xs
->     chebPolValAux (_, _, _, c, _) | V.null c =
->       Nothing
->     chebPolValAux (u', ujp1', ujp2', c, n) | otherwise =
->       Just (u, (u, u', ujp1, V.init c, n - 1))
+>     initU    = map ((cs!(n-2))+) $ map (2*cs!(n-1)*) xs
+>     ds       = V.init (V.init cs)
+>
+>     n        = length cs
+>     m        = length xs
+>
+>     chebPolValAux (_, _, c)
+>       | V.null c = Nothing
+>     chebPolValAux (ujp1, ujp2, c)
+>       | otherwise = Just ((u, ujp1), (u, ujp1, V.init c))
 >       where
->         ujp2 = ujp1'
->         ujp1 = u'
->         u = map ((V.last c)+) $ foo
->         foo = zipWith (-) (map (2*) $ zipWith (*) xs ujp1) ujp2
+>         u = map ((V.last c)+) $
+>             zipWith (-) (map (2*) $ zipWith (*) xs ujp1) ujp2
 
 > f :: Double -> Double
 > f x = 1 / (1+25 * x^2)
@@ -172,22 +175,13 @@ dia = diag
     [ghci]
     testZeros 5
 
-> y :: Int -> (Double -> Double) -> Vector Double
-> y n f = map f (chebZeros n)
+```{.dia width='800'}
+import ChebDiff
 
-> c0 :: Int -> (Double -> Double) -> Double
-> c0 n f = 1 / (fromIntegral n + 1) *
->          sum (y (n + 1) f .* (map ((!0) . (chebUnfold 3)) (chebZeros (n + 1))))
+dia = diagChebFit
+````
 
-> c1 :: Int -> (Double -> Double) -> Double
-> c1 n f = 2 / (fromIntegral n + 1) *
->          sum (y (n + 1) f .* (map ((!1) . (chebUnfold 3)) (chebZeros (n + 1))))
-
-> c2 :: Int -> (Double -> Double) -> Double
-> c2 n f = 2 / (fromIntegral n + 1) *
->          sum (y (n + 1) f .* (map ((!2) . (chebUnfold 3)) (chebZeros (n + 1))))
-
-> infixl 7 ^*
+> infixr 8 ^*
 > (^*) :: Num a => a -> Vector a -> Vector a
 > s ^* v = map (* s) v
 
@@ -195,18 +189,48 @@ dia = diag
 > (.*) :: Num a => Vector a -> Vector a -> Vector a
 > (.*) = zipWith (*)
 
+> infixl 6 .-
+> (.-) :: Num a => Vector a -> Vector a -> Vector a
+> (.-) = zipWith (-)
+
+> chartChebFit :: C.Renderable ()
+> chartChebFit = C.toRenderable layout
+>   where
+>     c = chebPolFit (chebZeros 11) f
+>     x = generate 201 (\n -> (fromIntegral n - 100) / 100)
+>     y = chebPolVal c x
+>     z = toList $ V.zip x y
+>     fit = C.plot_lines_values .~ [z]
+>           $ C.plot_lines_style  . C.line_color .~ opaque blue
+>           $ C.plot_lines_title .~ ("Interpolation")
+>           $ def
+>     org = C.plot_lines_values .~ [[ (x, f x) | x <- [-1.0,(-0.99)..1.0]]]
+>           $ C.plot_lines_style  . C.line_color .~ opaque red
+>           $ C.plot_lines_title .~ ("Original")
+>           $ def
+>
+>     layout = C.layout_title .~ "Chebyshev Interpolation"
+>            $ C.layout_plots .~ [C.toPlot fit,
+>                                 C.toPlot org
+>                                ]
+>            $ def
+
+> diagChebFit :: Diagram B R2
+> diagChebFit =
+>   fst $ runBackend denv (C.render chartChebFit (500, 500))
+
 > chart :: C.Renderable ()
 > chart = C.toRenderable layout
 >   where
->     sinusoid n c = C.plot_lines_values .~ [[ (x, (chebUnfold n x)!(n - 1)) | x <- [-1.0,(-0.99)..1.0]]]
+>     cheby n c = C.plot_lines_values .~ [[ (x, (chebUnfold n x)!(n - 1)) | x <- [-1.0,(-0.99)..1.0]]]
 >                  $ C.plot_lines_style  . C.line_color .~ opaque c
 >                  $ C.plot_lines_title .~ ("n = " P.++ show n)
 >                  $ def
-> 
+>
 >     layout = C.layout_title .~ "Chebyshev Polynomials"
->            $ C.layout_plots .~ [C.toPlot (sinusoid 3 blue),
->                                 C.toPlot (sinusoid 5 green),
->                                 C.toPlot (sinusoid 7 red)
+>            $ C.layout_plots .~ [C.toPlot (cheby 3 blue),
+>                                 C.toPlot (cheby 5 green),
+>                                 C.toPlot (cheby 7 red)
 >                                ]
 >            $ def
 
@@ -220,9 +244,8 @@ dia = diag
 > main :: IO ()
 > main = do
 >   displayHeader "diagrams/Chebyshev.svg" diag
+>   displayHeader "diagrams/ChebyInterp.svg" diagChebFit
 >   putStrLn "Hello"
-> 
->
 
 > displayHeader :: FilePath -> Diagram B R2 -> IO ()
 > displayHeader fn =
