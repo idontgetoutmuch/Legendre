@@ -59,13 +59,13 @@ $$
 
 > module ChebDiff where
 
-> import Prelude hiding ( length, sum, zipWith, map, (++), reverse, drop, replicate )
+> import Prelude hiding ( length, sum, zipWith, zipWith3,
+>                         map, (++), reverse, drop, replicate )
 > import qualified Prelude as P
 > import Data.Complex
 > import Data.Vector hiding ( tail )
+> import qualified Data.Vector as V
 > import Numeric.FFT
-
-> import qualified Data.List as L
 
 > import qualified Graphics.Rendering.Chart as C
 > import Graphics.Rendering.Chart.Backend.Diagrams
@@ -76,6 +76,7 @@ $$
 > import Diagrams.Backend.CmdLine
 
 > import System.IO.Unsafe
+
 
 > bigN :: Int
 > bigN = 10
@@ -120,11 +121,36 @@ $$
 >   where
 >     chebUnfoldAux (a, b) = Just (a, (b, 2 * x * b - a))
 
-> chebUnfoldL :: Int -> (Double -> Double) -> [[Double]]
-> chebUnfoldL n f = L.unfoldr chebUnfoldAux (P.replicate n 1, ys)
+> chebPolFit :: Vector Double -> (Double -> Double) -> Vector Double
+> chebPolFit zs f = (sum ys / n') `cons` (unfoldrN (n - 1) chebUnfoldAux (replicate n 1, zs))
 >   where
->     chebUnfoldAux (a, b) = Just (a, (b, P.zipWith3 (\x a b -> 2 * x * b - a) ys a b))
->     ys = toList $ map f $ chebZeros n
+>     n = length zs
+>     n' = fromIntegral n
+>     ys = map f zs
+>     chebUnfoldAux (t1, t2) =
+>       Just ((sum (t2 .* ys)) * 2 / n',
+>             (t2, zipWith3 (\x a b -> 2 * x * b - a) zs t1 t2))
+
+> chebPolVal :: Vector Double -> Vector Double -> Vector (Vector Double)
+> chebPolVal cs xs =
+>   unfoldr chebPolValAux (initUjp2, initUjp1, initUjp1, V.init (V.init cs), 2)
+>   where
+>     initUjp1 = replicate m (cs!(n-1))
+>     initUjp2 = map (+cs!(n-2)) $ map (2*cs!(n-1)*) xs
+>     n = length cs
+>     m = length xs
+>     chebPolValAux (_, _, _, c, _) | V.null c =
+>       Nothing
+>     chebPolValAux (u', ujp1', ujp2', c, n) | otherwise =
+>       Just (u, (u, u', ujp1, V.init c, n - 1))
+>       where
+>         ujp2 = ujp1'
+>         ujp1 = u'
+>         u = map ((V.last c)+) $ foo
+>         foo = zipWith (-) (map (2*) $ zipWith (*) xs ujp1) ujp2
+
+> f :: Double -> Double
+> f x = 1 / (1+25 * x^2)
 
 ```{.dia width='800'}
 import ChebDiff
