@@ -1,3 +1,10 @@
+% Chebyshev Approximations
+% Dominic Steinitz
+% 13th November 2014
+
+---
+bibliography: Kalman.bib
+---
 
 It is well known that one can represent a sufficiently well-behaved
 function on the interval $[-\pi, \pi]$ by its Fourier expansion. In
@@ -169,6 +176,25 @@ dia = diag
 >       where
 >         k' = fromIntegral k
 
+> chebPoints :: Floating a => Int -> Vector a
+> chebPoints n = map f (enumFromN 0 (n + 1))
+>   where
+>     n' = fromIntegral n
+>     f k = cos (pi * k' / n')
+>       where
+>         k' = fromIntegral k
+
+> chebFft :: Vector a -> (a -> Complex Double) -> IO (Vector Double)
+> chebFft ps f = do
+>   fcs <- fft $ map f ps'
+>   return $ map realPart $ zipWith (*) ns (V.take l fcs)
+>   where
+>     ns = recip2l `cons` (replicate (l - 2) (1 / l')) `snoc` recip2l
+>     recip2l = 1 / (2 * l')
+>     l = length ps
+>     l' = fromIntegral l - 1
+>     ps' = ps ++ reverse (slice 1 (l - 2) ps)
+
 > testZeros :: Int -> Vector Double
 > testZeros n = map (\z -> (chebUnfold n z)!(n - 1)) (chebZeros (n - 1))
 
@@ -192,6 +218,11 @@ dia = diagChebFit
 > infixl 6 .-
 > (.-) :: Num a => Vector a -> Vector a -> Vector a
 > (.-) = zipWith (-)
+
+
+
+To Be Moved
+===========
 
 > chartChebFit :: C.Renderable ()
 > chartChebFit = C.toRenderable layout
