@@ -3,7 +3,7 @@
 % 13th November 2014
 
 ---
-bibliography: Kalman.bib
+bibliography: Legendre.bib
 ---
 
 It is well known that one can represent a sufficiently well-behaved
@@ -68,21 +68,10 @@ $$
 
 > import Prelude hiding ( length, sum, zipWith, zipWith3,
 >                         map, (++), reverse, drop, replicate )
-> import qualified Prelude as P
 > import Data.Complex
 > import Data.Vector hiding ( tail )
 > import qualified Data.Vector as V
 > import Numeric.FFT
-
-> import qualified Graphics.Rendering.Chart as C
-> import Graphics.Rendering.Chart.Backend.Diagrams
-> import Diagrams.Backend.Cairo.CmdLine
-> import Diagrams.Prelude hiding ( render, Renderable, trace )
-> import Data.Default.Class
-
-> import Diagrams.Backend.CmdLine
-
-> import System.IO.Unsafe
 
 
 > bigN :: Int
@@ -224,62 +213,9 @@ dia = diagChebFit
 To Be Moved
 ===========
 
-> chartChebFit :: C.Renderable ()
-> chartChebFit = C.toRenderable layout
->   where
->     c = chebPolFit (chebZeros 11) f
->     x = generate 201 (\n -> (fromIntegral n - 100) / 100)
->     y = chebPolVal c x
->     z = toList $ V.zip x y
->     fit = C.plot_lines_values .~ [z]
->           $ C.plot_lines_style  . C.line_color .~ opaque blue
->           $ C.plot_lines_title .~ ("Interpolation")
->           $ def
->     org = C.plot_lines_values .~ [[ (x, f x) | x <- [-1.0,(-0.99)..1.0]]]
->           $ C.plot_lines_style  . C.line_color .~ opaque red
->           $ C.plot_lines_title .~ ("Original")
->           $ def
->
->     layout = C.layout_title .~ "Chebyshev Interpolation"
->            $ C.layout_plots .~ [C.toPlot fit,
->                                 C.toPlot org
->                                ]
->            $ def
+> x1, c, y :: Vector Double
+> x1 = generate 201 (\n -> (fromIntegral n - 100) / 100)
+> c = chebPolFit (chebZeros 11) f
+> y = chebPolVal c x1
 
-> diagChebFit :: Diagram B R2
-> diagChebFit =
->   fst $ runBackend denv (C.render chartChebFit (500, 500))
 
-> chart :: C.Renderable ()
-> chart = C.toRenderable layout
->   where
->     cheby n c = C.plot_lines_values .~ [[ (x, (chebUnfold n x)!(n - 1)) | x <- [-1.0,(-0.99)..1.0]]]
->                  $ C.plot_lines_style  . C.line_color .~ opaque c
->                  $ C.plot_lines_title .~ ("n = " P.++ show n)
->                  $ def
->
->     layout = C.layout_title .~ "Chebyshev Polynomials"
->            $ C.layout_plots .~ [C.toPlot (cheby 3 blue),
->                                 C.toPlot (cheby 5 green),
->                                 C.toPlot (cheby 7 red)
->                                ]
->            $ def
-
-> denv :: DEnv
-> denv = unsafePerformIO $ defaultEnv C.vectorAlignmentFns 500 500
-
-> diag :: Diagram B R2
-> diag =
->   fst $ runBackend denv (C.render chart (500, 500))
-
-> main :: IO ()
-> main = do
->   displayHeader "diagrams/Chebyshev.svg" diag
->   displayHeader "diagrams/ChebyInterp.svg" diagChebFit
->   putStrLn "Hello"
-
-> displayHeader :: FilePath -> Diagram B R2 -> IO ()
-> displayHeader fn =
->   mainRender ( DiagramOpts (Just 900) (Just 700) fn
->              , DiagramLoopOpts False Nothing 0
->              )
