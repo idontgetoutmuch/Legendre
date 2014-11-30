@@ -57,6 +57,36 @@ $$
 \hat{U_k} = \frac{\pi}{N}\sum_{j = 1}^{2N} e^{ik\theta}U_j
 $$
 
+The Chebyshev polynomials satisify a discrete orthogonality condition
+
+$$
+\langle T_j, T_k\rangle =
+\sum_{l=0}^m \cos jx_l \cos kx_l
+$$
+
+where
+
+$$
+x_l = \frac{\pi(j + 1/2)}{n+1}
+$$
+
+Writing
+
+$$
+\cos(jx_i) = \frac{1}{2}\big(z^{jx_i} + z^{-jx_i}\big) \\
+$$
+
+we have
+
+$$
+\begin{aligned}
+\sum_{l=0}^n \big(z^{jx_l} + z^{-jx_l}\big)\big(z^{kx_l} + z^{-kx_l}\big) &=
+\sum_{l=0}^n z^{(j+k)x_l} + z^{-(j+k)x_l} + z^{(j-k)x_l} + z^{-(j-k)x_l} \\
+&= \sum_{l=0}^n z^{(j+k)(hl + h/2)} + z^{-(j+k)(hl + h/2)} + z^{(j-k)(hl + h/2)} + z^{-(j-k)(hl + h/2)} \\
+&= z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1}
+\end{aligned}
+$$
+
 > {-# OPTIONS_GHC -Wall                      #-}
 > {-# OPTIONS_GHC -fno-warn-name-shadowing   #-}
 > {-# OPTIONS_GHC -fno-warn-type-defaults    #-}
@@ -68,11 +98,13 @@ $$
 
 > import Prelude hiding ( length, sum, zipWith, zipWith3,
 >                         map, (++), reverse, drop, replicate )
+> -- import qualified Prelude as P
 > import Data.Complex
 > import Data.Vector hiding ( tail )
 > import qualified Data.Vector as V
 > import Numeric.FFT
 
+> -- import Text.Printf
 
 > bigN :: Int
 > bigN = 10
@@ -148,13 +180,15 @@ $$
 >         u = map ((V.last c)+) $
 >             zipWith (-) (map (2*) $ zipWith (*) xs ujp1) ujp2
 
-> f :: Double -> Double
-> f x = 1 / (1+25 * x^2)
+> witchOfAgnesi :: Double -> Double
+> witchOfAgnesi x = 1 / (1+25 * x^2)
 
 ```{.dia width='800'}
 import ChebDiff
+import ChebDiag
+import Data.Vector ( toList )
 
-dia = diag
+dia = diag (\i x -> toList $ chebUnfold i x)
 ````
 
 > chebZeros :: Int -> Vector Double
@@ -192,8 +226,10 @@ dia = diag
 
 ```{.dia width='800'}
 import ChebDiff
+import ChebDiag
+import Data.Vector ( toList )
 
-dia = diagChebFit
+dia = diagChebFit (toList x1) (toList y) witchOfAgnesi
 ````
 
 > infixr 8 ^*
@@ -215,7 +251,7 @@ To Be Moved
 
 > x1, c, y :: Vector Double
 > x1 = generate 201 (\n -> (fromIntegral n - 100) / 100)
-> c = chebPolFit (chebZeros 11) f
+> c = chebPolFit (chebZeros 11) witchOfAgnesi
 > y = chebPolVal c x1
 
 
