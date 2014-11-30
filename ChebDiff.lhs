@@ -23,40 +23,6 @@ $$
 where $T_n(x) = \cos{n\theta}$ is the $n$-th Chebyshev polynomial and
 $g$ is an aribtrary (sufficiently well-behaved) function on $[-1, 1]$.
 
-$$
-p(x) = \sum_{n=0}^N a_n T_n(x)
-$$
-
-$$
-P(\theta) = \sum_{n=0}^N a_n \cos n\theta
-$$
-
-where $x = \cos\theta$.
-
-FIXME: Also $z + z^{-1}$.
-
-$$
-u_j = f(\cos \pi j / N)
-$$
-
-For $j = 0,1, \ldots, N$
-
-$$
-U_{j+1} = u_j
-$$
-
-For $j = 1, 2, \ldots, N - 1 $
-
-$$
-U_{2N - j + 1} = u_j
-$$
-
-FFT
-
-$$
-\hat{U_k} = \frac{\pi}{N}\sum_{j = 1}^{2N} e^{ik\theta}U_j
-$$
-
 The Chebyshev polynomials satisify a discrete orthogonality condition
 
 $$
@@ -80,10 +46,39 @@ we have
 
 $$
 \begin{aligned}
-\sum_{l=0}^n \big(z^{jx_l} + z^{-jx_l}\big)\big(z^{kx_l} + z^{-kx_l}\big) &=
+\sum_{l=0}^n \big(z^{jx_l} + z^{-jx_l}\big)\big(z^{kx_l} + z^{-kx_l}\big) & =
 \sum_{l=0}^n z^{(j+k)x_l} + z^{-(j+k)x_l} + z^{(j-k)x_l} + z^{-(j-k)x_l} \\
-&= \sum_{l=0}^n z^{(j+k)(hl + h/2)} + z^{-(j+k)(hl + h/2)} + z^{(j-k)(hl + h/2)} + z^{-(j-k)(hl + h/2)} \\
-&= z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1}
+& = \sum_{l=0}^n z^{(j+k)(hl + h/2)} + z^{-(j+k)(hl + h/2)} + z^{(j-k)(hl + h/2)} + z^{-(j-k)(hl + h/2)} \\
+& = z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1} \\
+& \quad + z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1} \\
+& = \frac{z^{(j+k)\pi} - 1}{z^{(j+k)h/2} - z^{-(j+k)h/2}} + \frac{z^{-(j+k)\pi} - 1}{z^{-(j+k)h/2} - z^{(j+k)h/2}} \\
+& \quad + \frac{z^{(j+k)\pi} - 1}{z^{(j+k)h/2} - z^{-(j+k)h/2}} + \frac{z^{-(j+k)\pi} - 1}{z^{-(j+k)h/2} - z^{(j+k)h/2}}
+\end{aligned}
+$$
+
+All the denominators on the RHS are imaginary and all the numerators
+are real thus the RHS is imaginary. Since the LHS is real, both must
+be 0.
+
+We can approximate any function by its expansion in Chebyshev polynomials
+
+$$
+f(x) \approx \sum_0^n c_i T_i(x)
+$$
+
+We can substitute in a Chebyshev zero of $T_{n+1}$, $\check{x}_i$
+
+$$
+\sum_{k=1}^{n+1} f(\check{x}_k) T_j(\check{x}_k) =
+\sum_{i=0}^n c_i \sum_{k=1}^{n+1} \Bigg[T_i(\check{x}_k)T_j(\check{x}_k)\Bigg]
+$$
+
+and then apply the discrete orthogonality condition to obtain
+
+$$
+\begin{aligned}
+c_0 &= \frac{1}{n+1}\sum_{k=1}^{n+1} f(\check{x}_k) \\
+c_i &= \frac{2}{n+1}\sum_{k=1}^{n+1} f(\check{x}_k)T_i(\check{x}_k)
 \end{aligned}
 $$
 
