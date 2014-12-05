@@ -6,6 +6,9 @@
 bibliography: Legendre.bib
 ---
 
+Introduction
+============
+
 It is well known that one can represent a sufficiently well-behaved
 function on the interval $[-\pi, \pi]$ by its Fourier expansion. In
 the case of a symmetric function, $f(-x) = f(x)$, this becomes
@@ -22,6 +25,31 @@ $$
 
 where $T_n(x) = \cos{n\theta}$ is the $n$-th Chebyshev polynomial and
 $g$ is an aribtrary (sufficiently well-behaved) function on $[-1, 1]$.
+
+Haskell Preamble
+----------------
+
+> {-# OPTIONS_GHC -Wall                      #-}
+> {-# OPTIONS_GHC -fno-warn-name-shadowing   #-}
+> {-# OPTIONS_GHC -fno-warn-type-defaults    #-}
+> {-# OPTIONS_GHC -fno-warn-unused-do-bind   #-}
+> {-# OPTIONS_GHC -fno-warn-missing-methods  #-}
+> {-# OPTIONS_GHC -fno-warn-orphans          #-}
+
+> module ChebDiff where
+
+> import Prelude hiding ( length, sum, zipWith, zipWith3,
+>                         map, (++), reverse, drop, replicate )
+> -- import qualified Prelude as P
+> import Data.Complex
+> import Data.Vector hiding ( tail )
+> import qualified Data.Vector as V
+> import Numeric.FFT
+
+> -- import Text.Printf
+
+Chebyshev Polynomial Properties
+-------------------------------
 
 The Chebyshev polynomials satisify a discrete orthogonality condition
 
@@ -82,32 +110,53 @@ c_i &= \frac{2}{n+1}\sum_{k=1}^{n+1} f(\check{x}_k)T_i(\check{x}_k)
 \end{aligned}
 $$
 
-> {-# OPTIONS_GHC -Wall                      #-}
-> {-# OPTIONS_GHC -fno-warn-name-shadowing   #-}
-> {-# OPTIONS_GHC -fno-warn-type-defaults    #-}
-> {-# OPTIONS_GHC -fno-warn-unused-do-bind   #-}
-> {-# OPTIONS_GHC -fno-warn-missing-methods  #-}
-> {-# OPTIONS_GHC -fno-warn-orphans          #-}
+Now we can write the approximation as
 
-> module ChebDiff where
+$$
+f(x) \approx \underbrace{\frac{1}{n+1}\sum_{i=1}^{n+1} f(\check{x}_i)}_{c_0} +
+\sum_{k=1}^n\underbrace{\frac{2}{n+1}\Bigg(\sum_{i=1}^{n+1}T_k(\check{x}_i)f(\check{x}_i)\Bigg)}_{c_k}T_k(x)
+$$
 
-> import Prelude hiding ( length, sum, zipWith, zipWith3,
->                         map, (++), reverse, drop, replicate )
-> -- import qualified Prelude as P
-> import Data.Complex
-> import Data.Vector hiding ( tail )
-> import qualified Data.Vector as V
-> import Numeric.FFT
+> chebPolFit :: Vector Double -> (Double -> Double) -> Vector Double
+> chebPolFit zs f = (sum ys / n') `cons` (unfoldrN (n - 1) chebUnfoldAux (replicate n 1, zs))
+>   where
+>     n = length zs
+>     n' = fromIntegral n
+>     ys = map f zs
+>     chebUnfoldAux (t1, t2) =
+>       Just ((sum (t2 .* ys)) * 2 / n',
+>             (t2, zipWith3 (\x a b -> 2 * x * b - a) zs t1 t2))
 
-> -- import Text.Printf
+It is tempting to calculate the Chebyshev points (of the first kind) directly.
+
+> chebPoints :: Floating a => Int -> Vector a
+> chebPoints n = map f (enumFromN 0 (n + 1))
+>   where
+>     n' = fromIntegral n
+>     f k = cos (pi * k' / n')
+>       where
+>         k' = fromIntegral k
+
+But this has some unfortunate consequences
+
+    [ghci]
+    chebPoints 2
+
+> chebPoints' :: Floating a => Int -> Vector a
+> chebPoints' n = generate (n + 1) f
+>   where
+>     f i = sin (pi * fromIntegral (2 * i - n) / fromIntegral (2 * n))
 
 > bigN :: Int
 > bigN = 10
 
 > x :: Vector (Complex Double)
-> x = generate
->     (bigN + 1)
->     (\i -> realToFrac $ cos (pi * fromIntegral i / fromIntegral bigN))
+> x = map realToFrac $ chebPoints bigN
+
+> x' :: Vector (Complex Double)
+> x' = generate
+>      (bigN + 1)
+>      (\i -> realToFrac $ sin (pi * fromIntegral (2 * i - bigN) / fromIntegral (2 * bigN)))
 
 > v :: Vector (Complex Double)
 > v = map (\x -> exp x * sin ( 5 * x)) x
@@ -144,15 +193,6 @@ $$
 >   where
 >     chebUnfoldAux (a, b) = Just (a, (b, 2 * x * b - a))
 
-> chebPolFit :: Vector Double -> (Double -> Double) -> Vector Double
-> chebPolFit zs f = (sum ys / n') `cons` (unfoldrN (n - 1) chebUnfoldAux (replicate n 1, zs))
->   where
->     n = length zs
->     n' = fromIntegral n
->     ys = map f zs
->     chebUnfoldAux (t1, t2) =
->       Just ((sum (t2 .* ys)) * 2 / n',
->             (t2, zipWith3 (\x a b -> 2 * x * b - a) zs t1 t2))
 
 > chebPolVal :: Vector Double -> Vector Double -> Vector Double
 > chebPolVal cs xs = u .- xs .* ujp1
@@ -194,13 +234,6 @@ dia = diag (\i x -> toList $ chebUnfold i x)
 >       where
 >         k' = fromIntegral k
 
-> chebPoints :: Floating a => Int -> Vector a
-> chebPoints n = map f (enumFromN 0 (n + 1))
->   where
->     n' = fromIntegral n
->     f k = cos (pi * k' / n')
->       where
->         k' = fromIntegral k
 
 > chebFft :: Vector a -> (a -> Complex Double) -> IO (Vector Double)
 > chebFft ps f = do
