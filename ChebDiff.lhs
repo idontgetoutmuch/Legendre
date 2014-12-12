@@ -26,6 +26,16 @@ $$
 where $T_n(x) = \cos{n\theta}$ is the $n$-th Chebyshev polynomial and
 $g$ is an aribtrary (sufficiently well-behaved) function on $[-1, 1]$.
 
+Here are a few examples of Chebyshev polynomials.
+
+```{.dia width='800'}
+import ChebDiff
+import ChebDiag
+import Data.Vector ( toList )
+
+dia = diag (\i x -> toList $ chebUnfold i x)
+````
+
 Haskell Preamble
 ----------------
 
@@ -54,28 +64,37 @@ Chebyshev Polynomial Properties
 The Chebyshev polynomials satisify a discrete orthogonality condition
 
 $$
-\langle T_j, T_k\rangle =
-\sum_{l=0}^m \cos jx_l \cos kx_l
+\langle T_j, T_k\rangle \triangleq
+\sum_{l=0}^n \cos j\hat{x}_l \cos k\hat{x}_l =
+\begin{cases}
+0           & \text{if } j \neq k \\
+\frac{n}{2} & \text{if } j = k \neq 0 \\
+n           & \text{if } j = k = 0
+\end{cases}
 $$
 
 where
 
 $$
-x_l = \frac{\pi(j + 1/2)}{n+1}
+\hat{x}_l = \frac{\pi(j + 1/2)}{n+1}
 $$
 
-Writing
+are the Chebyshev zeros of $T_{n+1}$ (they have other names but this seems safest).
+
+The case $j = k = 0$ is obvious.
+
+In the case $j \neq k$ and writing
 
 $$
-\cos(jx_i) = \frac{1}{2}\big(z^{jx_i} + z^{-jx_i}\big) \\
+\cos(j\hat{x}_i) = \frac{1}{2}\big(z^{j\hat{x}_i} + z^{-j\hat{x}_i}\big) \\
 $$
 
 we have
 
 $$
 \begin{aligned}
-\sum_{l=0}^n \big(z^{jx_l} + z^{-jx_l}\big)\big(z^{kx_l} + z^{-kx_l}\big) & =
-\sum_{l=0}^n z^{(j+k)x_l} + z^{-(j+k)x_l} + z^{(j-k)x_l} + z^{-(j-k)x_l} \\
+\sum_{l=0}^n \big(z^{j\hat{x}_l} + z^{-j\hat{x}_l}\big)\big(z^{k\hat{x}_l} + z^{-k\hat{x}_l}\big) & =
+\sum_{l=0}^n z^{(j+k)\hat{x}_l} + z^{-(j+k)\hat{x}_l} + z^{(j-k)\hat{x}_l} + z^{-(j-k)\hat{x}_l} \\
 & = \sum_{l=0}^n z^{(j+k)(hl + h/2)} + z^{-(j+k)(hl + h/2)} + z^{(j-k)(hl + h/2)} + z^{-(j-k)(hl + h/2)} \\
 & = z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1} \\
 & \quad + z^{(j+k)h/2}\frac{z^{(j+k)(n+1)h} - 1}{z^{(j+k)h} - 1} + z^{-(j+k)h/2}\frac{z^{-(j+k)(n+1)h} - 1}{z^{-(j+k)h} - 1} \\
@@ -88,33 +107,37 @@ All the denominators on the RHS are imaginary and all the numerators
 are real thus the RHS is imaginary. Since the LHS is real, both must
 be 0.
 
+A similar argument applies when $j = k \neq 0$ except that the last
+two terms in the RHS of the first line are 1. Summing these and
+equating real parts gives $\frac{2n}{4} = \frac{n}{2}$ as required.
+
 We can approximate any function by its expansion in Chebyshev polynomials
 
 $$
 f(x) \approx \sum_0^n c_i T_i(x)
 $$
 
-We can substitute in a Chebyshev zero of $T_{n+1}$, $\check{x}_i$
+We can substitute in a Chebyshev zero of $T_{n+1}$, $\hat{x}_k$
 
 $$
-\sum_{k=1}^{n+1} f(\check{x}_k) T_j(\check{x}_k) =
-\sum_{i=0}^n c_i \sum_{k=1}^{n+1} \Bigg[T_i(\check{x}_k)T_j(\check{x}_k)\Bigg]
+\sum_{k=0}^{n} f(\hat{x}_k) T_j(\hat{x}_k) =
+\sum_{i=0}^n c_i \sum_{k=0}^{n} \Bigg[T_i(\hat{x}_k)T_j(\hat{x}_k)\Bigg]
 $$
 
 and then apply the discrete orthogonality condition to obtain
 
 $$
 \begin{aligned}
-c_0 &= \frac{1}{n+1}\sum_{k=1}^{n+1} f(\check{x}_k) \\
-c_i &= \frac{2}{n+1}\sum_{k=1}^{n+1} f(\check{x}_k)T_i(\check{x}_k)
+c_0 &= \frac{1}{n}\sum_{k=0}^{n} f(\hat{x}_k) \\
+c_i &= \frac{2}{n}\sum_{k=0}^{n} f(\hat{x}_k)T_i(\hat{x}_k)
 \end{aligned}
 $$
 
 Now we can write the approximation as
 
 $$
-f(x) \approx \underbrace{\frac{1}{n+1}\sum_{i=1}^{n+1} f(\check{x}_i)}_{c_0} +
-\sum_{k=1}^n\underbrace{\frac{2}{n+1}\Bigg(\sum_{i=1}^{n+1}T_k(\check{x}_i)f(\check{x}_i)\Bigg)}_{c_k}T_k(x)
+f(x) \approx \underbrace{\frac{1}{n}\sum_{k=0}^{n} f(\hat{x}_k)}_{c_0} +
+\sum_{i=0}^n\underbrace{\frac{2}{n}\Bigg(\sum_{k=0}^{n}T_i(\hat{x}_k)f(\hat{x}_k)\Bigg)}_{c_i}T_i(x)
 $$
 
 > chebPolFit :: Vector Double -> (Double -> Double) -> Vector Double
@@ -129,8 +152,8 @@ $$
 
 It is tempting to calculate the Chebyshev points (of the first kind) directly.
 
-> chebPoints :: Floating a => Int -> Vector a
-> chebPoints n = map f (enumFromN 0 (n + 1))
+> chebPoints' :: Floating a => Int -> Vector a
+> chebPoints' n = map f (enumFromN 0 (n + 1))
 >   where
 >     n' = fromIntegral n
 >     f k = cos (pi * k' / n')
@@ -140,12 +163,17 @@ It is tempting to calculate the Chebyshev points (of the first kind) directly.
 But this has some unfortunate consequences
 
     [ghci]
-    chebPoints 2
+    chebPoints' 2
 
-> chebPoints' :: Floating a => Int -> Vector a
-> chebPoints' n = generate (n + 1) f
+It is better to use a method which produces symmetric values.
+
+> chebPoints :: Floating a => Int -> Vector a
+> chebPoints n = generate (n + 1) f
 >   where
 >     f i = sin (pi * fromIntegral (2 * i - n) / fromIntegral (2 * n))
+
+    [ghci]
+    chebPoints 2
 
 > bigN :: Int
 > bigN = 10
@@ -218,13 +246,6 @@ But this has some unfortunate consequences
 > witchOfAgnesi :: Double -> Double
 > witchOfAgnesi x = 1 / (1+25 * x^2)
 
-```{.dia width='800'}
-import ChebDiff
-import ChebDiag
-import Data.Vector ( toList )
-
-dia = diag (\i x -> toList $ chebUnfold i x)
-````
 
 > chebZeros :: Int -> Vector Double
 > chebZeros n = map f (enumFromN 0 n)
@@ -282,4 +303,8 @@ To Be Moved
 > c = chebPolFit (chebZeros 11) witchOfAgnesi
 > y = chebPolVal c x1
 
+
+https://hackage.haskell.org/package/polynomial
+
+http://www.chebfun.org/docs/guide/guide08.html
 
