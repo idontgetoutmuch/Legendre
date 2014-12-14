@@ -78,7 +78,30 @@ Haskell Preamble
 > -- import Text.Printf
 
 Chebyshev Polynomial Properties
--------------------------------
+===============================
+
+Whole books have been published on these, e.g., [@mason2002chebyshev],
+but let us collect together the few we need in order to accomplish our
+goal.
+
+Chebyshev Polynomials are Polynomials
+-------------------------------------
+
+We have $T_0(x) = 1$, $T_1(x) = x$ and
+
+$$
+\begin{aligned}
+T_m(x)
+&= \cos m\theta \\
+&= \cos m\theta + \cos (m - 2)\theta - \cos (m - 2)\theta \\
+&= \cos{((m - 1)\theta + \theta)} + \cos{((m - 1)\theta - \theta)} - \cos (m - 2)\theta \\
+&= 2\cos\theta\cos{((m - 1)\theta)} - \cos (m - 2)\theta \\
+&= 2xT_{m-1}(x) - T_{m-2}(x)
+\end{aligned}
+$$
+
+Discrete Orthogonality
+----------------------
 
 The Chebyshev polynomials satisify a discrete orthogonality condition
 
@@ -95,7 +118,7 @@ $$
 where
 
 $$
-\hat{x}_l = \frac{\pi(j + 1/2)}{n+1}
+\hat{x}_l = \frac{\pi(l + 1/2)}{n+1}
 $$
 
 are the Chebyshev zeros of $T_{n+1}$ (they have other names but this seems safest).
@@ -129,6 +152,29 @@ be 0.
 A similar argument applies when $j = k \neq 0$ except that the last
 two terms in the RHS of the first line are 1. Summing these and
 equating real parts gives $\frac{2n}{4} = \frac{n}{2}$ as required.
+
+The Chebyshev polynomials satisify another discrete orthogonality condition
+
+$$
+\langle T_j, T_k\rangle \triangleq
+\sum_{l=0}^n \cos j\check{x}_l \cos k\check{x}_l =
+\begin{cases}
+0           & \text{if } j \neq k \\
+\frac{n}{2} & \text{if } j = k \neq 0 \\
+n           & \text{if } j = k = 0
+\end{cases}
+$$
+
+where
+
+$$
+\check{x}_l = \frac{\pi l}{n}
+$$
+
+are the Chebyshev extrema of $T_{n+1}$ (again they have other names but this seems safest).
+
+Clenshaw
+--------
 
 We can approximate any function by its expansion in Chebyshev polynomials
 
@@ -327,3 +373,5 @@ https://hackage.haskell.org/package/polynomial
 
 http://www.chebfun.org/docs/guide/guide08.html
 
+Bibliography
+============
