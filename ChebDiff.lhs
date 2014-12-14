@@ -14,13 +14,13 @@ function on the interval $[-\pi, \pi]$ by its Fourier expansion. In
 the case of a symmetric function, $f(-x) = f(x)$, this becomes
 
 $$
-f(\theta) = \sum_{n=0}^\infty a_n \cos{n\theta}
+f(\theta) = \frac{a_0}{2} + \sum_{n=1}^\infty a_n \cos{n\theta}
 $$
 
 If we make a change of variable, $x = \cos{\theta}$ we obtain
 
 $$
-g(x) = \sum_{n=0}^\infty a_n T_n(x)
+g(x) = \frac{a_0}{2} + \sum_{n=1}^\infty a_n T_n(x)
 $$
 
 where $T_n(x) = \cos{n\theta}$ is the $n$-th Chebyshev polynomial and
@@ -35,6 +35,25 @@ import Data.Vector ( toList )
 
 dia = diag (\i x -> toList $ chebUnfold i x)
 ````
+
+We would like to approximate functions by a truncated Chebyshev
+expansion, for example, in order to solve differential
+equations. However, the coefficients are given by
+
+$$
+\begin{aligned}
+a_n &= \frac{1}{\pi}\int_{-\pi}^{\pi} f(\theta)\cos{(n\theta)}\,\mathrm{d}\theta \\
+    &= \frac{1}{\pi}\int_{-\pi}^{\pi} g(cos{(\theta)})\cos{(n\theta)}\,\mathrm{d}\theta \\
+    &= \frac{1}{\pi}\int_{-1}^{1} \frac{g(x)T_n(x)}{\sqrt{1 - x^2}}\,\mathrm{d}x
+\end{aligned}
+$$
+
+So it seems if we have to evaluate (potentially many) integrals in
+order to derive the approximation then we have not gained very much.
+
+Fortunately it turns out by using some of the many properties of
+Chebyshev polynomials and the fast Fourier transform (FFT) we can
+avoid integration and calcuate the approximation very efficiently.
 
 Haskell Preamble
 ----------------

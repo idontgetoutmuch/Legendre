@@ -56,6 +56,8 @@ chart chebUnfold = C.toRenderable layout
                  $ def
 
     layout = C.layout_title .~ "Chebyshev Polynomials"
+           $ C.layout_y_axis . C.laxis_generate .~ C.scaledAxis def (-1,1)
+           $ C.layout_x_axis . C.laxis_generate .~ C.scaledAxis def (-1,1)
            $ C.layout_plots .~ [C.toPlot (cheby 3 blue),
                                 C.toPlot (cheby 5 green),
                                 C.toPlot (cheby 7 red)
