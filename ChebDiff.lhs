@@ -33,7 +33,7 @@ import ChebDiff
 import ChebDiag
 import Data.Vector ( toList )
 
-dia = diag (\i x -> toList $ chebUnfold i x)
+dia = diag (\i x -> toList $ chebPoly i x)
 ````
 
 We would like to approximate functions by a truncated Chebyshev
@@ -99,6 +99,25 @@ T_m(x)
 &= 2xT_{m-1}(x) - T_{m-2}(x)
 \end{aligned}
 $$
+
+We could implement this directly
+
+> chebPoly' :: Int -> Double -> Double
+> chebPoly' 0 _ = 1
+> chebPoly' 1 x = x
+> chebPoly' n x = 2 * x * chebPoly' (n - 1) x - chebPoly' (n - 2) x
+
+but of course this is highly inefficient and it is much better to use
+an unfold (and return all the intermediate Chebyshev polynomials
+evaluated at the desired point).
+
+> chebPoly :: Int -> Double -> Vector Double
+> chebPoly n x = unfoldrN (n + 1) chebPolyAux (1, x)
+>   where
+>     chebPolyAux (a, b) = Just (a, (b, 2 * x * b - a))
+
+    [ghci]
+    V.last $ chebPoly 1001 0.0
 
 Discrete Orthogonality
 ----------------------
@@ -215,7 +234,7 @@ $$
 >       Just ((sum (t2 .* ys)) * 2 / n',
 >             (t2, zipWith3 (\x a b -> 2 * x * b - a) zs t1 t2))
 
-It is tempting to calculate the Chebyshev points (of the first kind) directly.
+It is tempting to calculate the Chebyshev extrema directly.
 
 > chebPoints' :: Floating a => Int -> Vector a
 > chebPoints' n = map f (enumFromN 0 (n + 1))
@@ -276,15 +295,6 @@ It is better to use a method which produces symmetric values.
 >   -- putStrLn $ show preInv
 >   putStrLn $ show bigW'
 
-> chebPoly :: Int -> Double -> Double
-> chebPoly 0 _ = 1
-> chebPoly 1 x = x
-> chebPoly n x = 2 * x * chebPoly (n - 1) x - chebPoly (n - 2) x
-
-> chebUnfold :: Int -> Double -> Vector Double
-> chebUnfold n x = unfoldrN n chebUnfoldAux (1, x)
->   where
->     chebUnfoldAux (a, b) = Just (a, (b, 2 * x * b - a))
 
 
 > chebPolVal :: Vector Double -> Vector Double -> Vector Double
@@ -333,7 +343,7 @@ It is better to use a method which produces symmetric values.
 >     ps' = ps ++ reverse (slice 1 (l - 2) ps)
 
 > testZeros :: Int -> Vector Double
-> testZeros n = map (\z -> (chebUnfold n z)!(n - 1)) (chebZeros (n - 1))
+> testZeros n = map (\z -> (chebPoly n z)!(n - 1)) (chebZeros (n - 1))
 
     [ghci]
     testZeros 5
